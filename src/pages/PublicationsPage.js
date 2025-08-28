@@ -1,38 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { db } from '../firebase'; 
-import { collection, getDocs } from 'firebase/firestore'; 
+import React from 'react';
+import { useData } from '../context/DataContext';
 
-// --- Import Reusable Components ---
+// --- Reusable Components ---
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
 
 // --- Publications Page Component ---
 const PublicationsPage = () => {
-    const [publications, setPublications] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchPublications = async () => {
-            try {
-                const querySnapshot = await getDocs(collection(db, "publications"));
-                const pubList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setPublications(pubList); 
-            } catch (error) {
-                console.error("Error fetching publications: ", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchPublications();
-    }, []); 
+    // Get data and loading state from the central DataContext
+    const { publications = [], loading } = useData();
 
     if (loading) {
-        return <div className="text-center py-40">Loading...</div>;
+        return <div className="text-center py-40 text-white">Loading...</div>;
     }
 
     return (
-        // --- FIX: Removed the bg-gray-900/50 class for consistent color ---
         <section id="publications" className="py-20 md:py-32 pt-40">
             <div className="container mx-auto px-6">
                 <SectionTitle>Publications</SectionTitle>

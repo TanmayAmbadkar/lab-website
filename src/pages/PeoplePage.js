@@ -1,7 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, getDocs, query } from 'firebase/firestore';
+import { useData } from '../context/DataContext';
 
 // --- Reusable Components ---
 import Card from '../components/Card';
@@ -11,32 +9,17 @@ import SocialLinks from '../components/SocialLinks';
 
 // --- People Page Component ---
 const PeoplePage = () => {
-    const [people, setPeople] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // Get data and loading state from the central DataContext
+    const { people = [], loading } = useData();
 
-    useEffect(() => {
-        const fetchPeople = async () => {
-            try {
-                // --- FIX: Removed the orderBy("order") to prevent errors if the field is missing ---
-                const q = query(collection(db, "people"));
-                const querySnapshot = await getDocs(q);
-                const peopleList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setPeople(peopleList);
-            } catch (error) {
-                console.error("Error fetching people: ", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPeople();
-    }, []);
-
-    const pi = people.find(p => p.role === 'pi');
-    const phdStudents = people.filter(p => p.role === 'phd');
-    const mastersStudents = people.filter(p => p.role === 'ms');
+    // Sort the data after it has been fetched
+    const sortedPeople = [...people].sort((a, b) => (a.order || 999) - (b.order || 999));
+    const pi = sortedPeople.find(p => p.role === 'pi');
+    const phdStudents = sortedPeople.filter(p => p.role === 'phd');
+    const mastersStudents = sortedPeople.filter(p => p.role === 'ms');
 
     if (loading) {
-        return <div className="text-center py-40">Loading...</div>;
+        return <div className="text-center py-40 text-white">Loading...</div>;
     }
 
     return (
@@ -57,10 +40,9 @@ const PeoplePage = () => {
                                         <h3 className="text-3xl font-bold text-white">{pi.name}</h3>
                                         <p className="text-blue-400 text-lg mb-4">Hartz Family Career Development Assistant Professor</p>
                                         
-                                        {/* --- UPDATED: Text-based links for the PI --- */}
                                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-gray-300">
                                             {pi.email && <a href={`mailto:${pi.email}`} className="hover:text-white transition-colors">Email</a>}
-                                            {pi.cv && <a href={pi.cv} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Website</a>}
+                                            {pi.cv && <a href={pi.cv} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Website/CV</a>}
                                             {pi.scholar && <a href={pi.scholar} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Google Scholar</a>}
                                             {pi.linkedin && <a href={pi.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">LinkedIn</a>}
                                             {pi.github && <a href={pi.github} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>}
