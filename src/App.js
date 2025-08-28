@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext'; // Import AuthProvider
+import { AuthProvider } from './context/AuthContext';
 
 // --- Import all page components ---
 import HomePage from './pages/HomePage';
@@ -10,12 +10,14 @@ import PublicationsPage from './pages/PublicationsPage';
 import NewsPage from './pages/NewsPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
-import LoginPage from './pages/LoginPage'; // Import LoginPage
-import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isHeaderGlass, setIsHeaderGlass] = useState(false);
+    const [isNavVisible, setIsNavVisible] = useState(true); // State to control navbar visibility
+    const lastScrollY = useRef(0); // Ref to store the last scroll position
     const location = useLocation();
 
     // Effect to close mobile menu on navigation and scroll to top
@@ -24,14 +26,32 @@ export default function App() {
         window.scrollTo(0, 0);
     }, [location.pathname]);
 
-    // Effect for the header style
+    // Effect for the header style and hide/show logic
     useEffect(() => {
-        const handleScroll = () => setIsHeaderGlass(window.scrollY > 50);
-        window.addEventListener('scroll', handleScroll);
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Determine scroll direction
+            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+                // Scrolling down
+                setIsNavVisible(false);
+            } else {
+                // Scrolling up
+                setIsNavVisible(true);
+            }
+            
+            // Set glass effect based on scroll position
+            setIsHeaderGlass(currentScrollY > 50);
+            
+            // Update the last scroll position
+            lastScrollY.current = currentScrollY;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Reusable NavLink component that highlights the active page
     const NavLink = ({ to, children }) => (
         <Link
             to={to}
@@ -42,13 +62,15 @@ export default function App() {
     );
 
     return (
-        <AuthProvider> {/* Wrap the entire app in the AuthProvider */}
+        <AuthProvider>
             <div className="antialiased" style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#0a0a0a', color: '#e2e8f0' }}>
-                <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isHeaderGlass || isMenuOpen ? 'glass-effect shadow-lg' : ''}`}>
+                {/* --- UPDATED: Added classes for the hide/show transition --- */}
+                <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${isNavVisible ? 'translate-y-0' : '-translate-y-full'} ${isHeaderGlass || isMenuOpen ? 'glass-effect shadow-lg' : ''}`}>
                     <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
                         <Link to="/" className="text-2xl font-bold text-white">
                             Neurosymbolic Intelligence Lab
                         </Link>
+                        
                         <div className="hidden md:flex items-center space-x-8">
                             <NavLink to="/">Home</NavLink>
                             <NavLink to="/people">People</NavLink>
@@ -57,6 +79,7 @@ export default function App() {
                             <NavLink to="/news">News</NavLink>
                             <Link to="/contact" className="btn btn-primary text-sm">Get in Touch</Link>
                         </div>
+
                         <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-white z-20">
                             {isMenuOpen ? (
                                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -65,6 +88,7 @@ export default function App() {
                             )}
                         </button>
                     </nav>
+
                     {isMenuOpen && (
                         <div className="md:hidden bg-gray-900/90 backdrop-blur-sm">
                             <Link to="/" className="block w-full text-left py-3 px-6 text-white hover:bg-blue-600">Home</Link>
@@ -76,6 +100,7 @@ export default function App() {
                         </div>
                     )}
                 </header>
+
                 <main>
                     <Routes>
                         <Route path="/" element={<HomePage />} />
@@ -95,6 +120,7 @@ export default function App() {
                         />
                     </Routes>
                 </main>
+
                 <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
                     <div className="container mx-auto px-6 text-center text-gray-400">
                         <p>&copy; 2025 Abhinav Verma</p>
