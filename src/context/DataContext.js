@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 const DataContext = createContext();
 
@@ -20,9 +20,16 @@ export function DataProvider({ children }) {
         setLoading(true);
 
         collectionsToFetch.forEach(collectionName => {
-            const q = query(collection(db, collectionName));
+            let q;
+            // --- UPDATED: Add specific ordering for the 'news' collection ---
+            if (collectionName === 'news') {
+                // Order news by date in descending order (newest first)
+                q = query(collection(db, collectionName), orderBy('date', 'desc'));
+            } else {
+                // For other collections, fetch without a specific order
+                q = query(collection(db, collectionName));
+            }
             
-            // --- UPDATED: Use onSnapshot for real-time updates ---
             const unsubscribe = onSnapshot(q, (querySnapshot) => {
                 const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
@@ -39,12 +46,9 @@ export function DataProvider({ children }) {
         });
 
         // A simple way to determine the initial load is complete
-        // This is not perfect but works for this use case.
-        // A more robust solution might track loading state for each collection.
-        const initialLoadTimer = setTimeout(() => setLoading(false), 2000); // Assume initial data loads within 2 seconds
+        const initialLoadTimer = setTimeout(() => setLoading(false), 2000);
 
         // Cleanup function: This is crucial to prevent memory leaks.
-        // It runs when the component unmounts, detaching all the listeners.
         return () => {
             unsubscribes.forEach(unsub => unsub());
             clearTimeout(initialLoadTimer);

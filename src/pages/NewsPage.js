@@ -1,68 +1,38 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import React from 'react';
+import { useData } from '../context/DataContext';
 
-const DataContext = createContext();
+// --- Reusable Components ---
+import Card from '../components/Card';
+import SectionTitle from '../components/SectionTitle';
 
-export function useData() {
-    return useContext(DataContext);
-}
+// --- News Page Component ---
+const NewsPage = () => {
+    // Get data and loading state from the central DataContext
+    const { news = [], loading } = useData();
 
-export function DataProvider({ children }) {
-    const [data, setData] = useState({});
-    const [loading, setLoading] = useState(true);
+    // Sort news items by date (assuming date is a string that can be sorted)
+    const sortedNews = [...news].sort((a, b) => b.date.localeCompare(a.date));
 
-    useEffect(() => {
-        const collectionsToFetch = ['people', 'projects', 'news', 'publications'];
-        const unsubscribes = []; // To hold our listener cleanup functions
-
-        // Set initial loading state
-        setLoading(true);
-
-        collectionsToFetch.forEach(collectionName => {
-            let q;
-            // --- UPDATED: Add specific ordering for the 'news' collection ---
-            if (collectionName === 'news') {
-                // Order news by date in descending order (newest first)
-                q = query(collection(db, collectionName), orderBy('date', 'desc'));
-            } else {
-                // For other collections, fetch without a specific order
-                q = query(collection(db, collectionName));
-            }
-            
-            const unsubscribe = onSnapshot(q, (querySnapshot) => {
-                const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                // Update the state for the specific collection that changed
-                setData(prevData => ({
-                    ...prevData,
-                    [collectionName]: docs,
-                }));
-            }, (error) => {
-                console.error(`Error fetching ${collectionName}:`, error);
-            });
-
-            unsubscribes.push(unsubscribe);
-        });
-
-        // A simple way to determine the initial load is complete
-        const initialLoadTimer = setTimeout(() => setLoading(false), 2000);
-
-        // Cleanup function: This is crucial to prevent memory leaks.
-        return () => {
-            unsubscribes.forEach(unsub => unsub());
-            clearTimeout(initialLoadTimer);
-        };
-    }, []); // Empty dependency array means this runs only once on mount
-
-    const value = {
-        ...data,
-        loading,
-    };
+    if (loading) {
+        return <div className="text-center py-40 text-white">Loading...</div>;
+    }
 
     return (
-        <DataContext.Provider value={value}>
-            {children}
-        </DataContext.Provider>
+        <section id="news" className="py-20 md:py-32 pt-40">
+            <div className="container mx-auto px-6">
+                <SectionTitle>News & Achievements</SectionTitle>
+                <div className="max-w-4xl mx-auto space-y-6">
+                    {sortedNews.map((item) => (
+                        <Card key={item.id} className="!p-6">
+                            <p className="text-sm text-blue-400 mb-2">{item.date}</p>
+                            <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                            <p className="text-gray-400">{item.description}</p>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+        </section>
     );
-}
+};
+
+export default NewsPage;
