@@ -1,84 +1,10 @@
-import React, { useEffect, useRef } from 'react';
-
-// --- Import Reusable Components ---
+import React from 'react';
 import Button from '../components/Button';
 import SectionTitle from '../components/SectionTitle';
 
 // --- Home Page Component ---
 const HomePage = () => {
-    const mountRef = useRef(null);
-
-    // This effect runs once when the component mounts to create the 3D background
-    useEffect(() => {
-        let animationFrameId;
-        let resizeObserver;
-
-        const threeScript = document.createElement('script');
-        threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-        threeScript.async = true;
-        document.body.appendChild(threeScript);
-
-        const initAnimation = () => {
-            if (!window.THREE || !mountRef.current) {
-                setTimeout(initAnimation, 100);
-                return;
-            }
-            
-            while (mountRef.current.firstChild) {
-                mountRef.current.removeChild(mountRef.current.firstChild);
-            }
-
-            const THREE = window.THREE;
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(60, mountRef.current.clientWidth / mountRef.current.clientHeight, 1, 1000);
-            camera.position.z = 1;
-
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
-            mountRef.current.appendChild(renderer.domElement);
-
-            const starGeo = new THREE.BufferGeometry();
-            const starVertices = [];
-            for (let i = 0; i < 6000; i++) {
-                const x = (Math.random() - 0.5) * 2000;
-                const y = (Math.random() - 0.5) * 2000;
-                const z = (Math.random() - 0.5) * 2000;
-                starVertices.push(x, y, z);
-            }
-            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-
-            const starMaterial = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.7 });
-            const stars = new THREE.Points(starGeo, starMaterial);
-            scene.add(stars);
-            
-            const animate = () => {
-                animationFrameId = requestAnimationFrame(animate);
-                stars.rotation.x += 0.0001;
-                stars.rotation.y += 0.0002;
-                renderer.render(scene, camera);
-            };
-            animate();
-            
-            resizeObserver = new ResizeObserver(entries => {
-                if (!entries || entries.length === 0) return;
-                const { width, height } = entries[0].contentRect;
-                camera.aspect = width / height;
-                camera.updateProjectionMatrix();
-                renderer.setSize(width, height);
-            });
-            resizeObserver.observe(mountRef.current);
-        };
-
-        threeScript.onload = initAnimation;
-
-        return () => {
-            document.body.removeChild(threeScript);
-            cancelAnimationFrame(animationFrameId);
-            if (resizeObserver && mountRef.current) {
-                resizeObserver.unobserve(mountRef.current);
-            }
-        };
-    }, []);
+    // The useEffect for the animation has been moved to App.js
 
     return (
         <>
@@ -102,8 +28,8 @@ const HomePage = () => {
                 `}
             </style>
             <section className="relative h-screen flex items-center justify-center text-center overflow-hidden">
+                {/* This overlay is optional but helps with text readability */}
                 <div className="absolute inset-0 bg-black opacity-50"></div>
-                <div ref={mountRef} id="hero-bg" className="absolute inset-0 z-[-1]"></div>
                 
                 <div className="relative z-10 px-4">
                     <div className="relative inline-block">
@@ -128,7 +54,7 @@ const HomePage = () => {
                     <SectionTitle>Research Overview</SectionTitle>
                     <div className="max-w-4xl mx-auto text-center text-gray-400 space-y-6">
                         <p className="text-lg">
-                            Our research combines ideas from formal methods and machine learning to efficiently build models that are reliable, transparent, and secure. This means that such a system can be expected to learn desirable behaviors with limited data, while provably maintaining some essential correctness invariant and generating models whose decisions can be understood by humans. We believe that we can achieve these goals via Neurosymbolic learning.
+                            Our research combines ideas from formal methods and machine learning to efficiently build models that are reliable, transparent, and secure.
                         </p>
                     </div>
                 </div>

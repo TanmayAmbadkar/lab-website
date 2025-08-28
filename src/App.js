@@ -20,6 +20,71 @@ export default function App() {
     const [isNavVisible, setIsNavVisible] = useState(true);
     const lastScrollY = useRef(0);
     const location = useLocation();
+    const backgroundRef = useRef(null); // Ref for the global background
+
+    // --- Global background animation effect ---
+    useEffect(() => {
+        let animationFrameId;
+        const threeScript = document.createElement('script');
+        threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+        threeScript.async = true;
+        document.body.appendChild(threeScript);
+
+        const initAnimation = () => {
+            if (!window.THREE || !backgroundRef.current) {
+                setTimeout(initAnimation, 100);
+                return;
+            }
+            
+            const THREE = window.THREE;
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.z = 1;
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            backgroundRef.current.appendChild(renderer.domElement);
+
+            const starGeo = new THREE.BufferGeometry();
+            const starVertices = [];
+            for (let i = 0; i < 6000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = (Math.random() - 0.5) * 2000;
+                starVertices.push(x, y, z);
+            }
+            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const starMaterial = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.7 });
+            const stars = new THREE.Points(starGeo, starMaterial);
+            scene.add(stars);
+            
+            const animate = () => {
+                animationFrameId = requestAnimationFrame(animate);
+                stars.rotation.x += 0.0001;
+                stars.rotation.y += 0.0002;
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            const onWindowResize = () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            };
+            window.addEventListener('resize', onWindowResize);
+
+            return () => {
+                window.removeEventListener('resize', onWindowResize);
+                cancelAnimationFrame(animationFrameId);
+            };
+        };
+
+        const cleanup = initAnimation();
+        return () => {
+            document.body.removeChild(threeScript);
+            if (cleanup) cleanup();
+        };
+    }, []);
 
     // Effect to close mobile menu on navigation and scroll to top
     useEffect(() => {
@@ -55,11 +120,15 @@ export default function App() {
     return (
         <AuthProvider>
             <DataProvider>
-                <div className="antialiased" style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#0a0a0a', color: '#e2e8f0' }}>
+                <div className="antialiased relative" style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#0a0a0a', color: '#e2e8f0' }}>
+                    <div ref={backgroundRef} className="fixed inset-0 z-[-1]"></div>
+
                     <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${isNavVisible ? 'translate-y-0' : '-translate-y-full'} ${isHeaderGlass || isMenuOpen ? 'glass-effect shadow-lg' : ''}`}>
                         <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
                             <Link to="/" className="text-2xl font-bold text-white">
-                                Neurosymbolic Intelligence Lab
+                                {/* --- UPDATED: Responsive lab name --- */}
+                                <span className="hidden md:inline">Neurosymbolic Intelligence Lab</span>
+                                <span className="md:hidden">NI Lab</span>
                             </Link>
                             <div className="hidden md:flex items-center space-x-8">
                                 <NavLink to="/">Home</NavLink>
