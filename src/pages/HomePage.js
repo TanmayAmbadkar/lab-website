@@ -4,7 +4,7 @@ import SectionTitle from '../components/SectionTitle';
 
 // --- Home Page Component ---
 const HomePage = () => {
-    // The useEffect for the animation has been moved to App.js
+    // The useEffect for the animation has been removed as it's now handled globally in App.js
 
     return (
         <>
@@ -28,8 +28,8 @@ const HomePage = () => {
                 `}
             </style>
             <section className="relative h-screen flex items-center justify-center text-center overflow-hidden">
-                {/* This overlay is optional but helps with text readability */}
                 <div className="absolute inset-0 bg-black opacity-50"></div>
+                {/* The global background from App.js will show through here */}
                 
                 <div className="relative z-10 px-4">
                     <div className="relative inline-block">
@@ -52,10 +52,25 @@ const HomePage = () => {
             <section id="about" className="py-20 md:py-32">
                 <div className="container mx-auto px-6">
                     <SectionTitle>Research Overview</SectionTitle>
-                    <div className="max-w-4xl mx-auto text-center text-gray-400 space-y-6">
+                    <div className="max-w-4xl mx-auto text-left text-gray-400 space-y-6">
                         <p className="text-lg">
-                            Our research combines ideas from formal methods and machine learning to efficiently build models that are reliable, transparent, and secure.
+                            Our research is dedicated to advancing the frontier of <strong>Trustworthy Artificial Intelligence</strong>. While modern machine learning, particularly deep learning, has achieved remarkable success, its "black-box" nature often makes it unreliable, difficult to interpret, and hard to formally verify. The Neurosymbolic Intelligence Lab directly confronts these challenges by pioneering new algorithmic techniques at the intersection of <strong>machine learning</strong> and <strong>formal methods</strong>.
                         </p>
+                        <p>
+                            Our central mission is to build intelligent systems that are <strong>reliable, transparent, and secure</strong>. We achieve this by creating deep connections between the inductive learning of neural networks and the rigorous, logical frameworks of symbolic reasoning. This neurosymbolic approach allows us to develop models that can learn complex behaviors from limited data while provably maintaining critical safety guarantees and generating decisions that can be understood by humans.
+                        </p>
+                        <p>Our work is focused on several key pillars:</p>
+                        <ul className="list-disc list-inside space-y-4 pl-4">
+                            <li>
+                                <strong>Making AI Robust to Human Interaction:</strong> Our research focuses on creating frameworks that allow users to guide AI with high-level, and even imperfect, instructions. We are building systems that can autonomously refine and correct these instructions during training, making powerful AI more accessible and collaborative.
+                            </li>
+                            <li>
+                                <strong>Building Scalable Safety Shields:</strong> We develop algorithm-agnostic "safety shields" that act as runtime monitors. By learning to predict the consequences of an agent's actions, these shields can intervene to provide safe alternatives, ensuring that our systems operate safely while still learning effectively.
+                            </li>
+                            <li>
+                                <strong>Enabling User-Driven Trade-offs:</strong> We train single AI policies that can generate a wide spectrum of optimal behaviors. This allows a human operator to interactively tune the agent's priorities on the fly, adapting its strategy to changing requirements without any need for retraining.
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </section>
