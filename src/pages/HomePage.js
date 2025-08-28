@@ -52,25 +52,20 @@ const HomePage = () => {
             <section id="about" className="py-20 md:py-32">
                 <div className="container mx-auto px-6">
                     <SectionTitle>Research Overview</SectionTitle>
+                    {/* --- UPDATED: New, detailed research overview --- */}
                     <div className="max-w-4xl mx-auto text-left text-gray-400 space-y-6">
                         <p className="text-lg">
-                            Our research is dedicated to advancing the frontier of <strong>Trustworthy Artificial Intelligence</strong>. While modern machine learning, particularly deep learning, has achieved remarkable success, its "black-box" nature often makes it unreliable, difficult to interpret, and hard to formally verify. The Neurosymbolic Intelligence Lab directly confronts these challenges by pioneering new algorithmic techniques at the intersection of <strong>machine learning</strong> and <strong>formal methods</strong>.
+                            Our research is dedicated to advancing the frontier of <strong>Trustworthy Artificial Intelligence</strong>. While modern Deep Neural Networks are powerful, their "black-box" nature presents significant challenges that limit their deployment in high-stakes environments. These models are often:
                         </p>
-                        <p>
-                            Our central mission is to build intelligent systems that are <strong>reliable, transparent, and secure</strong>. We achieve this by creating deep connections between the inductive learning of neural networks and the rigorous, logical frameworks of symbolic reasoning. This neurosymbolic approach allows us to develop models that can learn complex behaviors from limited data while provably maintaining critical safety guarantees and generating decisions that can be understood by humans.
-                        </p>
-                        <p>Our work is focused on several key pillars:</p>
-                        <ul className="list-disc list-inside space-y-4 pl-4">
-                            <li>
-                                <strong>Making AI Robust to Human Interaction:</strong> Our research focuses on creating frameworks that allow users to guide AI with high-level, and even imperfect, instructions. We are building systems that can autonomously refine and correct these instructions during training, making powerful AI more accessible and collaborative.
-                            </li>
-                            <li>
-                                <strong>Building Scalable Safety Shields:</strong> We develop algorithm-agnostic "safety shields" that act as runtime monitors. By learning to predict the consequences of an agent's actions, these shields can intervene to provide safe alternatives, ensuring that our systems operate safely while still learning effectively.
-                            </li>
-                            <li>
-                                <strong>Enabling User-Driven Trade-offs:</strong> We train single AI policies that can generate a wide spectrum of optimal behaviors. This allows a human operator to interactively tune the agent's priorities on the fly, adapting its strategy to changing requirements without any need for retraining.
-                            </li>
+                        <ul className="list-disc list-inside space-y-2 pl-4">
+                            <li><strong>Hard to interpret</strong>, making them difficult to audit and debug.</li>
+                            <li><strong>Hard to formally verify</strong>, preventing provable guarantees of their behavior.</li>
+                            <li><strong>Unreliable</strong>, showing high variability based on factors like random initialization.</li>
+                            <li><strong>Lacking in domain awareness</strong>, unable to incorporate commonsense knowledge.</li>
                         </ul>
+                        <p>
+                            The Neurosymbolic Intelligence Lab directly confronts these drawbacks. Our central mission is to build intelligent systems that are <strong>reliable, transparent, and secure</strong> by pioneering new techniques at the intersection of <strong>machine learning</strong> and <strong>formal methods</strong>. By creating deep connections between the inductive learning of neural networks and the rigorous logic of symbolic reasoning, we are forging a path toward a new generation of AI that can be truly trusted.
+                        </p>
                     </div>
                 </div>
             </section>
