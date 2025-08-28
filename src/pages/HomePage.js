@@ -1,6 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-// 1. Import useNavigate from react-router-dom
-import { useNavigate } from 'react-router-dom';
 
 // --- Import Reusable Components ---
 import Button from '../components/Button';
@@ -8,19 +6,12 @@ import SectionTitle from '../components/SectionTitle';
 
 // --- Home Page Component ---
 const HomePage = () => {
-    // 2. Get the navigate function from the hook
-    const navigate = useNavigate();
     const mountRef = useRef(null);
 
-    // This effect runs once to create the 3D background
+    // This effect runs once when the component mounts to create the 3D background
     useEffect(() => {
         let animationFrameId;
         let resizeObserver;
-        // --- FIX START ---
-        // Store the current ref in a variable inside the effect
-        const currentMount = mountRef.current; 
-        // --- FIX END ---
-
 
         const threeScript = document.createElement('script');
         threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
@@ -91,7 +82,6 @@ const HomePage = () => {
 
     return (
         <>
-            {/* Add a style tag for the new background animation */}
             <style>
                 {`
                     @keyframes rotate-glow {
@@ -111,14 +101,11 @@ const HomePage = () => {
                     }
                 `}
             </style>
-
-            {/* Hero Section */}
             <section className="relative h-screen flex items-center justify-center text-center overflow-hidden">
                 <div className="absolute inset-0 bg-black opacity-50"></div>
                 <div ref={mountRef} id="hero-bg" className="absolute inset-0 z-[-1]"></div>
                 
                 <div className="relative z-10 px-4">
-                    {/* The h1 is now wrapped to contain the background animation */}
                     <div className="relative inline-block">
                         <div className="animated-glow-background"></div>
                         <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight">
@@ -130,13 +117,12 @@ const HomePage = () => {
                         Led by Prof. Abhinav Verma at Penn State, we build intelligent systems that are reliable, transparent, and secure by combining machine learning and formal methods.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button onClick={() => navigate('/research')} variant="primary">Explore Our Work</Button>
-                        <Button onClick={() => navigate('/contact')} variant="secondary">Get In Touch</Button>
+                        <Button to="/research" variant="primary">Explore Our Work</Button>
+                        <Button to="/contact" variant="secondary">Get In Touch</Button>
                     </div>
                 </div>
             </section>
 
-            {/* Research Overview Section */}
             <section id="about" className="py-20 md:py-32">
                 <div className="container mx-auto px-6">
                     <SectionTitle>Research Overview</SectionTitle>
