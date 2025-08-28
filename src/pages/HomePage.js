@@ -16,6 +16,11 @@ const HomePage = () => {
     useEffect(() => {
         let animationFrameId;
         let resizeObserver;
+        // --- FIX START ---
+        // Store the current ref in a variable inside the effect
+        const currentMount = mountRef.current; 
+        // --- FIX END ---
+
 
         const threeScript = document.createElement('script');
         threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
