@@ -10,8 +10,8 @@ const NewsPage = () => {
     // Get data and loading state from the central DataContext
     const { news = [], loading } = useData();
 
-    // Sort news items by date (assuming date is a string that can be sorted)
-    const sortedNews = [...news].sort((a, b) => b.date.localeCompare(a.date));
+    // --- UPDATED: Correctly sort news items by parsing the date string ---
+    const sortedNews = [...news].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     if (loading) {
         return <div className="text-center py-40 text-white">Loading...</div>;
