@@ -1,4 +1,6 @@
 import React from 'react';
+
+// --- Import Reusable Components ---
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
 
@@ -12,10 +14,6 @@ const PublicationsPage = () => {
         // { title: "Eventual Discounting Temporal Logic Counterfactual Experience Replay", authors: "Cameron Voloshin, Abhinav Verma, Yisong Yue", conference: "International Conference on Machine Learning (ICML), 2023.", links: { ArXiv: "#" } },
         // { title: "Neurosymbolic Reinforcement Learning with Formally Verified Exploration", authors: "Greg Anderson, Abhinav Verma, Isil Dillig, Swarat Chaudhuri", conference: "Conference on Neural Information Processing Systems (NeurIPS), 2020.", links: { ArXiv: "#", Code: "#" } },
         // { title: "Learning Differentiable Programs with Admissible Neural Heuristics", authors: "Ameesh Shah, Eric Zhan, Jennifer J Sun, Abhinav Verma, Yisong Yue, Swarat Chaudhuri", conference: "Conference on Neural Information Processing Systems (NeurIPS), 2020.", links: { ArXiv: "#", Code: "#", Video: "#" } },
-        // { title: "Imitation-Projected Programmatic Reinforcement Learning", authors: "Abhinav Verma, Hoang M. Le, Yisong Yue, Swarat Chaudhuri", conference: "Conference on Neural Information Processing Systems (NeurIPS), 2019.", links: { ArXiv: "#", Code: "#", Video: "#" } },
-        // { title: "Control Regularization for Reduced Variance Reinforcement Learning", authors: "Richard Cheng, Abhinav Verma, Gabor Orosz, Swarat Chaudhuri, Yisong Yue, Joel W. Burdick", conference: "International Conference on Machine Learning (ICML), 2019.", links: { ArXiv: "#", Code: "#", Video: "#" } },
-        // { title: "Representing Formal Languages: A Comparison Between Finite Automata and Recurrent Neural Networks", authors: "Joshua J. Michalenko, Ameesh Shah, Abhinav Verma, Richard G. Baraniuk, Swarat Chaudhuri, Ankit B. Patel", conference: "International Conference on Learning Representations(ICLR), 2019.", links: { ArXiv: "#" } },
-        // { title: "Programmatically Interpretable Reinforcement Learning", authors: "Abhinav Verma, Vijayaraghavan Murali, Rishabh Singh, Pushmeet Kohli, Swarat Chaudhuri", conference: "International Conference on Machine Learning (ICML), 2018.", links: { ArXiv: "#", Video: "#" } },
     ];
 
     return (
@@ -23,14 +21,13 @@ const PublicationsPage = () => {
             <div className="container mx-auto px-6">
                 <SectionTitle>Publications</SectionTitle>
                 <div className="max-w-4xl mx-auto space-y-4">
-                    {/* Map over the publications array to render each one */}
+                    {/* Map over the publications array to render each one inside a Card */}
                     {publications.map((pub, index) => (
                         <Card key={index} className="!p-6">
                             <p className="text-lg text-white font-semibold mb-2">{pub.title}</p>
                             <p className="text-gray-400 mb-3">{pub.authors}</p>
                             <div className="flex flex-wrap items-center justify-between">
                                 <p className="text-blue-400 font-medium">{pub.conference}</p>
-                                {/* Conditionally render links if they exist */}
                                 {pub.links && (
                                     <div className="flex space-x-4 mt-2 sm:mt-0">
                                         {Object.entries(pub.links).map(([name, url]) => (
