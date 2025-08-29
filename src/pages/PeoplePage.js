@@ -12,11 +12,24 @@ const PeoplePage = () => {
     // Get data and loading state from the central DataContext
     const { people = [], loading } = useData();
 
-    // Sort the data after it has been fetched
-    const sortedPeople = [...people].sort((a, b) => (a.order || 999) - (b.order || 999));
-    const pi = sortedPeople.find(p => p.role === 'pi');
-    const phdStudents = sortedPeople.filter(p => p.role === 'phd');
-    const mastersStudents = sortedPeople.filter(p => p.role === 'ms');
+    // Helper function to extract the last name from a full name string
+    const getLastName = (name) => {
+        if (!name) return '';
+        const parts = name.split(' ');
+        return parts[parts.length - 1];
+    };
+
+    // Filter people by their role
+    const pi = people.find(p => p.role === 'pi');
+
+    // Filter and then sort the student lists by last name
+    const phdStudents = people
+        .filter(p => p.role === 'phd')
+        .sort((a, b) => getLastName(a.name).localeCompare(getLastName(b.name)));
+        
+    const mastersStudents = people
+        .filter(p => p.role === 'ms')
+        .sort((a, b) => getLastName(a.name).localeCompare(getLastName(b.name)));
 
     if (loading) {
         return <div className="text-center py-40 text-white">Loading...</div>;
