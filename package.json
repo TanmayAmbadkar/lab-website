@@ -33,7 +33,7 @@
     "production": [
       ">0.2%",
       "not dead",
-      "not op_miall"
+      "not op_mimi all"
     ],
     "development": [
       "last 1 chrome version",
