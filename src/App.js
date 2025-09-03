@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
+import * as THREE from 'three'; // <-- 1. Import THREE.js
 
 // --- Import all page components ---
+import Header from './components/Header';
 import HomePage from './pages/HomePage';
 import PeoplePage from './pages/PeoplePage';
 import ProjectsPage from './pages/ProjectsPage';
@@ -15,80 +17,69 @@ import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isHeaderVisible, setIsHeaderVisible] = useState(true);
     const [isHeaderGlass, setIsHeaderGlass] = useState(false);
-    const [isNavVisible, setIsNavVisible] = useState(true);
     const lastScrollY = useRef(0);
     const location = useLocation();
-    const backgroundRef = useRef(null); // Ref for the global background
+    const backgroundRef = useRef(null);
 
     // --- Global background animation effect ---
     useEffect(() => {
+        const currentMount = backgroundRef.current;
+        if (!currentMount) return;
+
+        // --- 2. Animation logic now directly uses the imported THREE object ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, currentMount.clientWidth / currentMount.clientHeight, 1, 1000);
+        camera.position.z = 1;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
+        currentMount.appendChild(renderer.domElement);
+
+        const starGeo = new THREE.BufferGeometry();
+        const starVertices = [];
+        for (let i = 0; i < 6000; i++) {
+            const x = (Math.random() - 0.5) * 2000;
+            const y = (Math.random() - 0.5) * 2000;
+            const z = (Math.random() - 0.5) * 2000;
+            starVertices.push(x, y, z);
+        }
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+        const starMaterial = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.7 });
+        const stars = new THREE.Points(starGeo, starMaterial);
+        scene.add(stars);
+        
         let animationFrameId;
-        const threeScript = document.createElement('script');
-        threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-        threeScript.async = true;
-        document.body.appendChild(threeScript);
-
-        const initAnimation = () => {
-            if (!window.THREE || !backgroundRef.current) {
-                setTimeout(initAnimation, 100);
-                return;
-            }
-            
-            const THREE = window.THREE;
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-            camera.position.z = 1;
-
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            backgroundRef.current.appendChild(renderer.domElement);
-
-            const starGeo = new THREE.BufferGeometry();
-            const starVertices = [];
-            for (let i = 0; i < 6000; i++) {
-                const x = (Math.random() - 0.5) * 2000;
-                const y = (Math.random() - 0.5) * 2000;
-                const z = (Math.random() - 0.5) * 2000;
-                starVertices.push(x, y, z);
-            }
-            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-            const starMaterial = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.7 });
-            const stars = new THREE.Points(starGeo, starMaterial);
-            scene.add(stars);
-            
-            const animate = () => {
-                animationFrameId = requestAnimationFrame(animate);
-                stars.rotation.x += 0.0001;
-                stars.rotation.y += 0.0002;
-                renderer.render(scene, camera);
-            };
-            animate();
-
-            const onWindowResize = () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            };
-            window.addEventListener('resize', onWindowResize);
-
-            return () => {
-                window.removeEventListener('resize', onWindowResize);
-                cancelAnimationFrame(animationFrameId);
-            };
+        const animate = () => {
+            animationFrameId = requestAnimationFrame(animate);
+            stars.rotation.x += 0.0001;
+            stars.rotation.y += 0.0002;
+            renderer.render(scene, camera);
         };
+        animate();
 
-        const cleanup = initAnimation();
+        const onWindowResize = () => {
+            camera.aspect = currentMount.clientWidth / currentMount.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
+        };
+        window.addEventListener('resize', onWindowResize);
+
         return () => {
-            document.body.removeChild(threeScript);
-            if (cleanup) cleanup();
+            window.removeEventListener('resize', onWindowResize);
+            cancelAnimationFrame(animationFrameId);
+            if (currentMount) {
+                 // Check if renderer.domElement is still a child before removing
+                if (renderer.domElement.parentNode === currentMount) {
+                    currentMount.removeChild(renderer.domElement);
+                }
+            }
         };
     }, []);
 
-    // Effect to close mobile menu on navigation and scroll to top
+    // Effect to scroll to top on navigation
     useEffect(() => {
-        setIsMenuOpen(false);
         window.scrollTo(0, 0);
     }, [location.pathname]);
 
@@ -97,9 +88,9 @@ export default function App() {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
             if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-                setIsNavVisible(false);
+                setIsHeaderVisible(false);
             } else {
-                setIsNavVisible(true);
+                setIsHeaderVisible(true);
             }
             setIsHeaderGlass(currentScrollY > 50);
             lastScrollY.current = currentScrollY;
@@ -108,55 +99,14 @@ export default function App() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const NavLink = ({ to, children }) => (
-        <Link
-            to={to}
-            className={`capitalize transition-colors duration-300 ${location.pathname === to ? 'text-white font-semibold' : 'text-gray-300 hover:text-white'}`}
-        >
-            {children}
-        </Link>
-    );
-
     return (
         <AuthProvider>
             <DataProvider>
                 <div className="antialiased relative" style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#0a0a0a', color: '#e2e8f0' }}>
                     <div ref={backgroundRef} className="fixed inset-0 z-[-1]"></div>
-
-                    <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${isNavVisible ? 'translate-y-0' : '-translate-y-full'} ${isHeaderGlass || isMenuOpen ? 'glass-effect shadow-lg' : ''}`}>
-                        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-                            <Link to="/" className="text-2xl font-bold text-white">
-                                {/* --- UPDATED: Responsive lab name --- */}
-                                <span className="hidden md:inline">The Whitebox AI Lab</span>
-                                <span className="md:hidden">Whitebox</span>
-                            </Link>
-                            <div className="hidden md:flex items-center space-x-8">
-                                <NavLink to="/">Home</NavLink>
-                                <NavLink to="/people">People</NavLink>
-                                <NavLink to="/research">Research</NavLink>
-                                <NavLink to="/publications">Publications</NavLink>
-                                <NavLink to="/news">News</NavLink>
-                                <Link to="/contact" className="btn btn-primary text-sm">Get in Touch</Link>
-                            </div>
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-white z-20">
-                                {isMenuOpen ? (
-                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                ) : (
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                                )}
-                            </button>
-                        </nav>
-                        {isMenuOpen && (
-                            <div className="md:hidden bg-gray-900/90 backdrop-blur-sm">
-                                <Link to="/" className="block w-full text-left py-3 px-6 text-white hover:bg-blue-600">Home</Link>
-                                <Link to="/people" className="block w-full text-left py-3 px-6 text-white hover:bg-blue-600">People</Link>
-                                <Link to="/research" className="block w-full text-left py-3 px-6 text-white hover:bg-blue-600">Research</Link>
-                                <Link to="/publications" className="block w-full text-left py-3 px-6 text-white hover:bg-blue-600">Publications</Link>
-                                <Link to="/news" className="block w-full text-left py-3 px-6 text-white hover:bg-blue-600">News</Link>
-                                <Link to="/contact" className="block w-full text-left py-3 px-6 text-white hover:bg-blue-600">Get in Touch</Link>
-                            </div>
-                        )}
-                    </header>
+                    
+                    <Header isHeaderVisible={isHeaderVisible} isHeaderGlass={isHeaderGlass} />
+                    
                     <main>
                         <Routes>
                             <Route path="/" element={<HomePage />} />
@@ -176,9 +126,44 @@ export default function App() {
                             />
                         </Routes>
                     </main>
-                    <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
-                        <div className="container mx-auto px-6 text-center text-gray-400">
-                            <p>&copy; 2025 Abhinav Verma</p>
+
+                    <footer className="bg-gray-900/70 backdrop-blur-sm border-t border-gray-800 pt-16 pb-8">
+                         <div className="container mx-auto px-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white mb-4">Pages</h3>
+                                    <ul>
+                                        <li><Link to="/people" className="text-gray-400 hover:text-white transition">People</Link></li>
+                                        <li><Link to="/research" className="text-gray-400 hover:text-white transition">Research</Link></li>
+                                        <li><Link to="/publications" className="text-gray-400 hover:text-white transition">Publications</Link></li>
+                                        <li><Link to="/news" className="text-gray-400 hover:text-white transition">News</Link></li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white mb-4">Research Areas</h3>
+                                    <ul className="text-gray-400">
+                                        <li>Trustworthy AI</li>
+                                        <li>Neurosymbolic Learning</li>
+                                        <li>Safe Reinforcement Learning</li>
+                                        <li>Formal Methods</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white mb-4">Our Location</h3>
+                                    <p className="text-gray-400">W365 Westgate Building</p>
+                                    <p className="text-gray-400">The Pennsylvania State University</p>
+                                    <p className="text-gray-400">University Park, PA 16802</p>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white mb-4">Contact</h3>
+                                    <p className="text-gray-400">
+                                        <a href="mailto:verma@psu.edu" className="hover:text-white transition">verma@psu.edu</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="text-center text-gray-500 mt-12 border-t border-gray-800 pt-8">
+                                &copy; {new Date().getFullYear()} Abhinav Verma. All Rights Reserved.
+                            </div>
                         </div>
                     </footer>
                 </div>
@@ -186,3 +171,4 @@ export default function App() {
         </AuthProvider>
     );
 }
+
