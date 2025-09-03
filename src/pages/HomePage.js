@@ -1,10 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '../components/Button';
 import SectionTitle from '../components/SectionTitle';
 
-// --- Home Page Component ---
+// --- Home Page Component with Animated Title ---
 const HomePage = () => {
-    // The useEffect for the animation has been removed as it's now handled globally in App.js
+    const [animatedTitle, setAnimatedTitle] = useState('');
+    const targetTitle = 'The Whitebox AI Lab';
+
+    useEffect(() => {
+        let animationFrameId;
+        let iteration = 0;
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!<>-_[]{}=+*^?#';
+
+        const animate = () => {
+            let newTitle = targetTitle
+                .split('')
+                .map((letter, index) => {
+                    if (index < iteration) {
+                        return targetTitle[index];
+                    }
+                    if (letter === ' ') return ' ';
+                    return chars[Math.floor(Math.random() * chars.length)];
+                })
+                .join('');
+            
+            setAnimatedTitle(newTitle);
+
+            if (iteration < targetTitle.length) {
+                iteration += 1 / 3; // Controls the speed of the reveal
+                animationFrameId = requestAnimationFrame(animate);
+            } else {
+                setAnimatedTitle(targetTitle); // Ensure it ends on the correct title
+            }
+        };
+
+        animationFrameId = requestAnimationFrame(animate);
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []); // Empty dependency array ensures this runs only once on mount
 
     return (
         <>
@@ -29,13 +64,12 @@ const HomePage = () => {
             </style>
             <section className="relative h-screen flex items-center justify-center text-center overflow-hidden">
                 <div className="absolute inset-0 bg-black opacity-50"></div>
-                {/* The global background from App.js will show through here */}
                 
                 <div className="relative z-10 px-4">
                     <div className="relative inline-block">
                         <div className="animated-glow-background"></div>
-                        <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight">
-                            Neurosymbolic Intelligence Lab
+                        <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight" style={{ minHeight: '1.5em' }}>
+                            {animatedTitle}
                         </h1>
                     </div>
 
@@ -52,7 +86,6 @@ const HomePage = () => {
             <section id="about" className="py-20 md:py-32">
                 <div className="container mx-auto px-6">
                     <SectionTitle>Research Overview</SectionTitle>
-                    {/* --- UPDATED: New, detailed research overview --- */}
                     <div className="max-w-4xl mx-auto text-left text-gray-400 space-y-6">
                         <p className="text-lg">
                             Our research is dedicated to advancing the frontier of <strong>Trustworthy Artificial Intelligence</strong>. While modern Deep Neural Networks are powerful, their "black-box" nature presents significant challenges that limit their deployment in high-stakes environments. These models are often:
@@ -64,7 +97,7 @@ const HomePage = () => {
                             <li><strong>Lacking in domain awareness</strong>, unable to incorporate commonsense knowledge.</li>
                         </ul>
                         <p>
-                            The Whitebox AI Lab directly confronts these drawbacks. Our central mission is to build intelligent systems that are <strong>reliable, transparent, and secure</strong> by pioneering new techniques at the intersection of <strong>machine learning</strong> and <strong>formal methods</strong>. By creating deep connections between the inductive learning of neural networks and the rigorous logic of symbolic reasoning, we are forging a path toward a new generation of AI that can be truly trusted.
+                            The Neurosymbolic Intelligence Lab directly confronts these drawbacks. Our central mission is to build intelligent systems that are <strong>reliable, transparent, and secure</strong> by pioneering new techniques at the intersection of <strong>machine learning</strong> and <strong>formal methods</strong>. By creating deep connections between the inductive learning of neural networks and the rigorous logic of symbolic reasoning, we are forging a path toward a new generation of AI that can be truly trusted.
                         </p>
                     </div>
                 </div>
@@ -74,3 +107,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
