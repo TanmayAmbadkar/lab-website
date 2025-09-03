@@ -20,8 +20,8 @@ const Header = ({ isHeaderVisible, isHeaderGlass }) => {
         <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'} ${isHeaderGlass || isMenuOpen ? 'glass-effect shadow-lg' : ''}`}>
             <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
                 <Link to="/" className="text-2xl font-bold text-white">
-                    <span className="hidden md:inline">Neurosymbolic Intelligence Lab</span>
-                    <span className="md:hidden">NIL</span>
+                    <span className="hidden md:inline">The Whitebox AI Lab</span>
+                    <span className="md:hidden">Whitebox</span>
                 </Link>
                 
                 {/* Desktop Navigation */}
