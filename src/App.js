@@ -127,8 +127,8 @@ export default function App() {
                         <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
                             <Link to="/" className="text-2xl font-bold text-white">
                                 {/* --- UPDATED: Responsive lab name --- */}
-                                <span className="hidden md:inline">Neurosymbolic Intelligence Lab</span>
-                                <span className="md:hidden">NI Lab</span>
+                                <span className="hidden md:inline">The Whitebox AI Lab</span>
+                                <span className="md:hidden">Whitebox</span>
                             </Link>
                             <div className="hidden md:flex items-center space-x-8">
                                 <NavLink to="/">Home</NavLink>

@@ -64,7 +64,7 @@ const HomePage = () => {
                             <li><strong>Lacking in domain awareness</strong>, unable to incorporate commonsense knowledge.</li>
                         </ul>
                         <p>
-                            The Neurosymbolic Intelligence Lab directly confronts these drawbacks. Our central mission is to build intelligent systems that are <strong>reliable, transparent, and secure</strong> by pioneering new techniques at the intersection of <strong>machine learning</strong> and <strong>formal methods</strong>. By creating deep connections between the inductive learning of neural networks and the rigorous logic of symbolic reasoning, we are forging a path toward a new generation of AI that can be truly trusted.
+                            The Whitebox AI Lab directly confronts these drawbacks. Our central mission is to build intelligent systems that are <strong>reliable, transparent, and secure</strong> by pioneering new techniques at the intersection of <strong>machine learning</strong> and <strong>formal methods</strong>. By creating deep connections between the inductive learning of neural networks and the rigorous logic of symbolic reasoning, we are forging a path toward a new generation of AI that can be truly trusted.
                         </p>
                     </div>
                 </div>
