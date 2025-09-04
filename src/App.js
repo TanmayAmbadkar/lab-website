@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
-import * as THREE from 'three'; // <-- 1. Import THREE.js
+import * as THREE from 'three';
 
-// --- Import all page components ---
+// --- Import Components ---
 import Header from './components/Header';
+import ProtectedRoute from './components/ProtectedRoute';
+import IntroAnimation from './components/IntroAnimation';
+
+// --- Import Pages ---
 import HomePage from './pages/HomePage';
 import PeoplePage from './pages/PeoplePage';
 import ProjectsPage from './pages/ProjectsPage';
@@ -14,21 +18,20 @@ import NewsPage from './pages/NewsPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
-import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
-    const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+    const [showIntro, setShowIntro] = useState(false);
+    const [isNavVisible, setIsNavVisible] = useState(true);
     const [isHeaderGlass, setIsHeaderGlass] = useState(false);
     const lastScrollY = useRef(0);
     const location = useLocation();
     const backgroundRef = useRef(null);
 
-    // --- Global background animation effect ---
+    // --- Persistent Background Animation ---
     useEffect(() => {
         const currentMount = backgroundRef.current;
         if (!currentMount) return;
 
-        // --- 2. Animation logic now directly uses the imported THREE object ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(60, currentMount.clientWidth / currentMount.clientHeight, 1, 1000);
         camera.position.z = 1;
@@ -60,22 +63,30 @@ export default function App() {
         animate();
 
         const onWindowResize = () => {
-            camera.aspect = currentMount.clientWidth / currentMount.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
+            if (currentMount) {
+                camera.aspect = currentMount.clientWidth / currentMount.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
+            }
         };
         window.addEventListener('resize', onWindowResize);
 
         return () => {
             window.removeEventListener('resize', onWindowResize);
             cancelAnimationFrame(animationFrameId);
-            if (currentMount) {
-                 // Check if renderer.domElement is still a child before removing
-                if (renderer.domElement.parentNode === currentMount) {
-                    currentMount.removeChild(renderer.domElement);
-                }
+            if (currentMount && renderer.domElement.parentNode === currentMount) {
+                currentMount.removeChild(renderer.domElement);
             }
         };
+    }, []);
+
+    // --- Intro Animation Logic ---
+    useEffect(() => {
+        const introShownInSession = sessionStorage.getItem('introShown');
+        if (!introShownInSession) {
+            setShowIntro(true);
+            sessionStorage.setItem('introShown', 'true');
+        }
     }, []);
 
     // Effect to scroll to top on navigation
@@ -88,9 +99,9 @@ export default function App() {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
             if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-                setIsHeaderVisible(false);
+                setIsNavVisible(false);
             } else {
-                setIsHeaderVisible(true);
+                setIsNavVisible(true);
             }
             setIsHeaderGlass(currentScrollY > 50);
             lastScrollY.current = currentScrollY;
@@ -98,14 +109,21 @@ export default function App() {
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+    
+    const handleAnimationComplete = () => {
+        setShowIntro(false);
+    };
 
     return (
         <AuthProvider>
             <DataProvider>
+                {showIntro && <IntroAnimation onAnimationComplete={handleAnimationComplete} />}
+                
                 <div className="antialiased relative" style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#0a0a0a', color: '#e2e8f0' }}>
+                    
                     <div ref={backgroundRef} className="fixed inset-0 z-[-1]"></div>
                     
-                    <Header isHeaderVisible={isHeaderVisible} isHeaderGlass={isHeaderGlass} />
+                    <Header isHeaderVisible={isNavVisible} isHeaderGlass={isHeaderGlass} />
                     
                     <main>
                         <Routes>
@@ -127,43 +145,9 @@ export default function App() {
                         </Routes>
                     </main>
 
-                    <footer className="bg-gray-900/70 backdrop-blur-sm border-t border-gray-800 pt-16 pb-8">
-                         <div className="container mx-auto px-6">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-4">Pages</h3>
-                                    <ul>
-                                        <li><Link to="/people" className="text-gray-400 hover:text-white transition">People</Link></li>
-                                        <li><Link to="/research" className="text-gray-400 hover:text-white transition">Research</Link></li>
-                                        <li><Link to="/publications" className="text-gray-400 hover:text-white transition">Publications</Link></li>
-                                        <li><Link to="/news" className="text-gray-400 hover:text-white transition">News</Link></li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-4">Research Areas</h3>
-                                    <ul className="text-gray-400">
-                                        <li>Trustworthy AI</li>
-                                        <li>Neurosymbolic Learning</li>
-                                        <li>Safe Reinforcement Learning</li>
-                                        <li>Formal Methods</li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-4">Our Location</h3>
-                                    <p className="text-gray-400">W365 Westgate Building</p>
-                                    <p className="text-gray-400">The Pennsylvania State University</p>
-                                    <p className="text-gray-400">University Park, PA 16802</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-4">Contact</h3>
-                                    <p className="text-gray-400">
-                                        <a href="mailto:verma@psu.edu" className="hover:text-white transition">verma@psu.edu</a>
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="text-center text-gray-500 mt-12 border-t border-gray-800 pt-8">
-                                &copy; {new Date().getFullYear()} Abhinav Verma. All Rights Reserved.
-                            </div>
+                    <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
+                        <div className="container mx-auto px-6 text-center text-gray-400">
+                            <p>&copy; 2025 The Whitebox AI Lab</p>
                         </div>
                     </footer>
                 </div>
