@@ -1,70 +1,55 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { useSpring, animated } from 'react-spring';
 
-const IntroAnimation = ({ onAnimationComplete }) => {
-    useEffect(() => {
-        const introContainer = document.getElementById('intro-container-react');
-
-        // Prevent body scrolling while animation is active
-        document.body.style.overflow = 'hidden';
-
-        // Trigger the animation by adding the 'is-animating' class after a short delay
-        const startTimer = setTimeout(() => {
-            if (introContainer) {
-                introContainer.classList.add('is-animating');
+const IntroAnimation = ({ isLoaded, onAnimationComplete }) => {
+    // This animation handles the reveal sequence once data is loaded
+    const revealAnimation = useSpring({
+        // The animation starts when isLoaded becomes true
+        from: { scale: 1, backgroundColor: '#0a0a0a', opacity: 1 },
+        to: async (next) => {
+            if (isLoaded) {
+                // The box expands to cover the screen
+                await next({ scale: 50, config: { duration: 1500, easing: t => t * t * t } });
+                // The entire overlay fades out
+                // await next({ opacity: 0, config: { duration: 500 } });
+                onAnimationComplete(); // Signal completion
             }
-        }, 50);
-
-        // Set a timer to call the completion callback and clean up
-        const animationDuration = 2600; // 2.5s transition + 100ms buffer
-        const endTimer = setTimeout(() => {
-            onAnimationComplete();
-            // Re-enable scrolling on the body
-            document.body.style.overflow = 'auto';
-        }, animationDuration);
-
-        // Cleanup timers on component unmount
-        return () => {
-            clearTimeout(startTimer);
-            clearTimeout(endTimer);
-            // Ensure scrolling is re-enabled if the component unmounts early
-            document.body.style.overflow = 'auto';
-        };
-    }, [onAnimationComplete]);
+        },
+    });
 
     return (
         <>
             <style>
                 {`
-                    /* The overlay container that holds the reveal effect */
                     .intro-container-react {
                         position: fixed;
                         inset: 0;
                         z-index: 100;
+                        background-color: white; /* The initial white screen */
                         display: flex;
                         justify-content: center;
                         align-items: center;
-                        pointer-events: none; /* Allows clicks to go through to the site below */
+                        overflow: hidden;
                     }
 
-                    /* The core of the effect: a box with a massive border that shrinks */
-                    .reveal-box-react {
-                        position: absolute;
-                        width: 100vw;
-                        height: 100vh;
-                        background-color: transparent;
-                        border: 50vmax solid white;
-                        box-sizing: border-box;
-                        transition: border-width 2.5s cubic-bezier(0.86, 0, 0.07, 1);
-                    }
-
-                    /* The class that triggers the animation */
-                    .intro-container-react.is-animating .reveal-box-react {
-                        border-width: 0px;
+                    .loader-outline-react {
+                        width: 60px;
+                        height: 60px;
+                        background-color: #0a0a0a; /* Black box */
+                        border: 2px solid #0a0a0a; /* Black outline */
+                        border-radius: 8px;
                     }
                 `}
             </style>
             <div id="intro-container-react" className="intro-container-react">
-                <div className="reveal-box-react"></div>
+                {/* If data is NOT loaded, show the pulsing outline loader.
+                  If data IS loaded, show the animated solid box that will expand.
+                */}
+                {!isLoaded ? (
+                    <div className="loader-outline-react animate-pulse"></div>
+                ) : (
+                    <animated.div style={revealAnimation} className="loader-outline-react" />
+                )}
             </div>
         </>
     );
