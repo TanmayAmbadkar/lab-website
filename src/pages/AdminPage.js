@@ -44,6 +44,13 @@ const DocumentForm = ({ formData, fields, onChange, onSave, onCancel, isSaving }
 
 // --- Main Admin Page Component ---
 
+const collectionConfigs = {
+    projects: { name: 'Projects', fields: ['title', 'description'] },
+    people: { name: 'People', fields: ['name', 'role', 'focusArea', 'imageURL', 'email', 'bio', 'cv', 'scholar', 'linkedin', 'github'] },
+    news: { name: 'News', fields: ['date', 'title', 'description'] },
+    publications: { name: 'Publications', fields: ['date', 'title', 'authors', 'conference', 'links.ArXiv', 'links.Code'] },
+};
+
 const AdminPage = () => {
     const navigate = useNavigate();
     const [collections, setCollections] = useState({});
@@ -52,13 +59,6 @@ const AdminPage = () => {
     const [activeCollection, setActiveCollection] = useState('people');
     const [formData, setFormData] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const collectionConfigs = {
-        projects: { name: 'Projects', fields: ['title', 'description'] },
-        people: { name: 'People', fields: ['name', 'role', 'focusArea', 'imageURL', 'email', 'bio', 'cv', 'scholar', 'linkedin', 'github'] },
-        news: { name: 'News', fields: ['date', 'title', 'description'] },
-        publications: { name: 'Publications', fields: ['date', 'title', 'authors', 'conference', 'links.ArXiv', 'links.Code'] },
-    };
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -151,6 +151,7 @@ const AdminPage = () => {
             if (processedDoc.date && typeof processedDoc.date.toDate === 'function') {
                 processedDoc.date = processedDoc.date.toDate().toISOString().split('T')[0];
             }
+
             setFormData(processedDoc);
         } else {
             setFormData({});

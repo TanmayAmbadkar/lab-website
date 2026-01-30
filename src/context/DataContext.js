@@ -9,15 +9,28 @@ export function useData() {
 }
 
 export function DataProvider({ children }) {
-    const [data, setData] = useState({});
-    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(() => {
+        const cached = localStorage.getItem('siteData');
+        return cached ? JSON.parse(cached) : {};
+    });
+
+    const [loading, setLoading] = useState(() => {
+        // If we have cached data, we don't need to show a loading screen
+        return !localStorage.getItem('siteData');
+    });
+
+    // Save data to local storage whenever it changes
+    useEffect(() => {
+        if (Object.keys(data).length > 0) {
+            localStorage.setItem('siteData', JSON.stringify(data));
+        }
+    }, [data]);
 
     useEffect(() => {
         const collectionsToFetch = ['people', 'projects', 'news', 'publications'];
         const unsubscribes = []; // To hold our listener cleanup functions
 
-        // Set initial loading state
-        setLoading(true);
+
 
         collectionsToFetch.forEach(collectionName => {
             let q;
@@ -58,6 +71,7 @@ export function DataProvider({ children }) {
         });
 
         // A simple way to determine the initial load is complete
+        // We still run this to ensure loading is eventually cleared if cache was empty
         const initialLoadTimer = setTimeout(() => setLoading(false), 2000);
 
         // Cleanup function: This is crucial to prevent memory leaks.

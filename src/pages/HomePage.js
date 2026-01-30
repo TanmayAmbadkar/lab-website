@@ -1,45 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Button from '../components/Button';
 import SectionTitle from '../components/SectionTitle';
 
-// --- Home Page Component with Animated Title ---
+// --- Home Page Component ---
 const HomePage = () => {
-    const [animatedTitle, setAnimatedTitle] = useState('');
     const targetTitle = 'Neurosymbolic Lab @ PennState';
-
-    useEffect(() => {
-        let animationFrameId;
-        let iteration = 0;
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!<>-_[]{}=+*^?#';
-
-        const animate = () => {
-            let newTitle = targetTitle
-                .split('')
-                .map((letter, index) => {
-                    if (index < iteration) {
-                        return targetTitle[index];
-                    }
-                    if (letter === ' ') return ' ';
-                    return chars[Math.floor(Math.random() * chars.length)];
-                })
-                .join('');
-
-            setAnimatedTitle(newTitle);
-
-            if (iteration < targetTitle.length) {
-                iteration += 1 / 3; // Controls the speed of the reveal
-                animationFrameId = requestAnimationFrame(animate);
-            } else {
-                setAnimatedTitle(targetTitle); // Ensure it ends on the correct title
-            }
-        };
-
-        animationFrameId = requestAnimationFrame(animate);
-
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, []); // Empty dependency array ensures this runs only once on mount
 
     return (
         <>
@@ -68,8 +33,8 @@ const HomePage = () => {
                 <div className="relative z-10 px-4">
                     <div className="relative inline-block">
                         <div className="animated-glow-background"></div>
-                        <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight" style={{ minHeight: '1.5em' }}>
-                            {animatedTitle}
+                        <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight">
+                            {targetTitle}
                         </h1>
                     </div>
 

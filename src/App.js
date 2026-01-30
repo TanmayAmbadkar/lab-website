@@ -7,7 +7,6 @@ import * as THREE from 'three';
 // --- Import Components ---
 import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
-import IntroAnimation from './components/IntroAnimation';
 
 // --- Import Pages ---
 import HomePage from './pages/HomePage';
@@ -18,9 +17,12 @@ import NewsPage from './pages/NewsPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
+import NotFoundPage from './pages/NotFoundPage';
 
-export default function App() {
-    const [showIntro, setShowIntro] = useState(false);
+// This new wrapper component can access the DataContext
+const AppContent = () => {
+    // const { loading: isDataLoading } = useData(); // Not needed anymore if no intro
+
     const [isNavVisible, setIsNavVisible] = useState(true);
     const [isHeaderGlass, setIsHeaderGlass] = useState(false);
     const lastScrollY = useRef(0);
@@ -80,21 +82,10 @@ export default function App() {
         };
     }, []);
 
-    // --- Intro Animation Logic ---
-    useEffect(() => {
-        const introShownInSession = sessionStorage.getItem('introShown');
-        if (!introShownInSession) {
-            setShowIntro(true);
-            sessionStorage.setItem('introShown', 'true');
-        }
-    }, []);
-
-    // Effect to scroll to top on navigation
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [location.pathname]);
 
-    // Effect for the header style and hide/show logic
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
@@ -110,47 +101,55 @@ export default function App() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const handleAnimationComplete = () => {
-        setShowIntro(false);
-    };
+    return (
+        <div
+            className="antialiased relative"
+            style={{
+                fontFamily: "'Inter', sans-serif",
+                backgroundColor: '#0a0a0a',
+                color: '#e2e8f0',
+            }}
+        >
+            <div ref={backgroundRef} className="fixed inset-0 z-[-1]"></div>
 
+            <Header isHeaderVisible={isNavVisible} isHeaderGlass={isHeaderGlass} />
+
+            <main>
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/people" element={<PeoplePage />} />
+                    <Route path="/research" element={<ProjectsPage />} />
+                    <Route path="/publications" element={<PublicationsPage />} />
+                    <Route path="/news" element={<NewsPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route
+                        path="/admin"
+                        element={
+                            <ProtectedRoute>
+                                <AdminPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+            </main>
+
+            <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
+                <div className="container mx-auto px-6 text-center text-gray-400">
+                    <p>&copy; {new Date().getFullYear()} Neurosymbolic Lab @ PennState</p>
+                </div>
+            </footer>
+        </div>
+    );
+};
+
+// The main App component now just provides the context wrappers
+export default function App() {
     return (
         <AuthProvider>
             <DataProvider>
-                {showIntro && <IntroAnimation onAnimationComplete={handleAnimationComplete} />}
-
-                <div className="antialiased relative" style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#0a0a0a', color: '#e2e8f0' }}>
-
-                    <div ref={backgroundRef} className="fixed inset-0 z-[-1]"></div>
-
-                    <Header isHeaderVisible={isNavVisible} isHeaderGlass={isHeaderGlass} />
-
-                    <main>
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/people" element={<PeoplePage />} />
-                            <Route path="/research" element={<ProjectsPage />} />
-                            <Route path="/publications" element={<PublicationsPage />} />
-                            <Route path="/news" element={<NewsPage />} />
-                            <Route path="/contact" element={<ContactPage />} />
-                            <Route path="/login" element={<LoginPage />} />
-                            <Route
-                                path="/admin"
-                                element={
-                                    <ProtectedRoute>
-                                        <AdminPage />
-                                    </ProtectedRoute>
-                                }
-                            />
-                        </Routes>
-                    </main>
-
-                    <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
-                        <div className="container mx-auto px-6 text-center text-gray-400">
-                            <p>&copy; 2025 Neurosymbolic Lab @ PennState</p>
-                        </div>
-                    </footer>
-                </div>
+                <AppContent />
             </DataProvider>
         </AuthProvider>
     );
