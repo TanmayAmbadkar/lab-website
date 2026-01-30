@@ -38,10 +38,10 @@ const Header = ({ isHeaderVisible, isHeaderGlass }) => {
             <header className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'} ${isHeaderGlass ? 'glass-effect shadow-lg' : ''}`}>
                 <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
                     <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white z-50">
-                        <span className="hidden md:inline">The Whitebox AI Lab</span>
-                        <span className="md:hidden">Whitebox</span>
+                        <span className="hidden md:inline">Neurosymbolic Lab @ PennState</span>
+                        <span className="md:hidden">Neurosymbolic Lab</span>
                     </Link>
-                    
+
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-8">
                         <NavLink to="/">Home</NavLink>
@@ -55,7 +55,7 @@ const Header = ({ isHeaderVisible, isHeaderGlass }) => {
                     {/* Mobile Menu Button (high z-index to stay on top) */}
                     <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-white z-50">
                         {isMenuOpen ? (
-                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         ) : (
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                         )}

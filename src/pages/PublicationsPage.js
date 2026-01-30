@@ -24,7 +24,10 @@ const PublicationsPage = () => {
                             <p className="text-lg text-white font-semibold mb-2">{pub.title}</p>
                             <p className="text-gray-400 mb-3">{pub.authors}</p>
                             <div className="flex flex-wrap items-center justify-between">
-                                <p className="text-blue-400 font-medium">{pub.conference}</p>
+                                <div className="flex items-center space-x-2">
+                                    <p className="text-blue-400 font-medium">{pub.conference}</p>
+                                    {pub.date && <span className="text-gray-500">• {pub.date}</span>}
+                                </div>
                                 {pub.links && (
                                     <div className="flex space-x-4 mt-2 sm:mt-0">
                                         {Object.entries(pub.links).map(([name, url]) => (

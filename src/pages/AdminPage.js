@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { db } from '../firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, Timestamp } from 'firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,7 +24,7 @@ const DocumentForm = ({ formData, fields, onChange, onSave, onCancel, isSaving }
             <div key={field} className="mb-4">
                 <label className="block text-gray-300 text-sm font-bold mb-2 capitalize">{field.replace('.', ' ')}</label>
                 <input
-                    type="text"
+                    type={field === 'date' ? 'date' : 'text'}
                     name={field}
                     placeholder={`Enter ${field.replace('.', ' ')}`}
                     value={field.includes('.') ? formData[field.split('.')[0]]?.[field.split('.')[1]] || '' : formData[field] || ''}
@@ -57,7 +57,7 @@ const AdminPage = () => {
         projects: { name: 'Projects', fields: ['title', 'description'] },
         people: { name: 'People', fields: ['name', 'role', 'focusArea', 'imageURL', 'email', 'bio', 'cv', 'scholar', 'linkedin', 'github'] },
         news: { name: 'News', fields: ['date', 'title', 'description'] },
-        publications: { name: 'Publications', fields: ['title', 'authors', 'conference', 'links.ArXiv', 'links.Code'] },
+        publications: { name: 'Publications', fields: ['date', 'title', 'authors', 'conference', 'links.ArXiv', 'links.Code'] },
     };
 
     const fetchData = useCallback(async () => {
@@ -94,10 +94,18 @@ const AdminPage = () => {
             return newData;
         });
     };
-
     const handleSave = async () => {
         setIsSaving(true);
         const { id, ...dataToSave } = formData;
+
+        // Convert 'date' field to Firestore Timestamp if it exists
+        if (dataToSave.date) {
+            // Create a date object. Note: input type="date" returns YYYY-MM-DD. 
+            // We set time to noon to avoid timezone rollover issues.
+            const dateObj = new Date(dataToSave.date + 'T12:00:00');
+            dataToSave.date = Timestamp.fromDate(dateObj);
+        }
+
         try {
             if (id) {
                 await updateDoc(doc(db, activeCollection, id), dataToSave);
@@ -136,8 +144,17 @@ const AdminPage = () => {
         }
     };
 
-    const openModal = (doc = null) => {
-        setFormData(doc ? { ...doc } : {});
+    const openModal = (docItem = null) => {
+        if (docItem) {
+            const processedDoc = { ...docItem };
+            // Convert Firestore Timestamp to YYYY-MM-DD string for the form input
+            if (processedDoc.date && typeof processedDoc.date.toDate === 'function') {
+                processedDoc.date = processedDoc.date.toDate().toISOString().split('T')[0];
+            }
+            setFormData(processedDoc);
+        } else {
+            setFormData({});
+        }
         setIsModalOpen(true);
     };
 

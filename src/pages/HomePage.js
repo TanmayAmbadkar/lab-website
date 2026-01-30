@@ -5,7 +5,7 @@ import SectionTitle from '../components/SectionTitle';
 // --- Home Page Component with Animated Title ---
 const HomePage = () => {
     const [animatedTitle, setAnimatedTitle] = useState('');
-    const targetTitle = 'The Whitebox AI Lab';
+    const targetTitle = 'Neurosymbolic Lab @ PennState';
 
     useEffect(() => {
         let animationFrameId;
@@ -23,7 +23,7 @@ const HomePage = () => {
                     return chars[Math.floor(Math.random() * chars.length)];
                 })
                 .join('');
-            
+
             setAnimatedTitle(newTitle);
 
             if (iteration < targetTitle.length) {
@@ -64,7 +64,7 @@ const HomePage = () => {
             </style>
             <section className="relative h-screen flex items-center justify-center text-center overflow-hidden">
                 <div className="absolute inset-0 bg-black opacity-50"></div>
-                
+
                 <div className="relative z-10 px-4">
                     <div className="relative inline-block">
                         <div className="animated-glow-background"></div>

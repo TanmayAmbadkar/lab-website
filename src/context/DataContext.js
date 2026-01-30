@@ -21,18 +21,30 @@ export function DataProvider({ children }) {
 
         collectionsToFetch.forEach(collectionName => {
             let q;
-            // --- UPDATED: Add specific ordering for the 'news' collection ---
+            // --- UPDATED: Add specific ordering for the 'news' and 'publications' collections ---
             if (collectionName === 'news') {
                 // Order news by date in descending order (newest first)
+                q = query(collection(db, collectionName), orderBy('date', 'desc'));
+            } else if (collectionName === 'publications') {
+                // Order publications by date in descending order (newest first)
                 q = query(collection(db, collectionName), orderBy('date', 'desc'));
             } else {
                 // For other collections, fetch without a specific order
                 q = query(collection(db, collectionName));
             }
-            
+
             const unsubscribe = onSnapshot(q, (querySnapshot) => {
-                const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
+                const docs = querySnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    // Convert Firestore Timestamps to strings
+                    for (const key in data) {
+                        if (data[key] && typeof data[key].toDate === 'function') {
+                            data[key] = data[key].toDate().toISOString().split('T')[0];
+                        }
+                    }
+                    return { id: doc.id, ...data };
+                });
+
                 // Update the state for the specific collection that changed
                 setData(prevData => ({
                     ...prevData,

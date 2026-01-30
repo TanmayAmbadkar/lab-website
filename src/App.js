@@ -52,7 +52,7 @@ export default function App() {
         const starMaterial = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.7 });
         const stars = new THREE.Points(starGeo, starMaterial);
         scene.add(stars);
-        
+
         let animationFrameId;
         const animate = () => {
             animationFrameId = requestAnimationFrame(animate);
@@ -109,7 +109,7 @@ export default function App() {
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
-    
+
     const handleAnimationComplete = () => {
         setShowIntro(false);
     };
@@ -118,13 +118,13 @@ export default function App() {
         <AuthProvider>
             <DataProvider>
                 {showIntro && <IntroAnimation onAnimationComplete={handleAnimationComplete} />}
-                
+
                 <div className="antialiased relative" style={{ fontFamily: "'Inter', sans-serif", backgroundColor: '#0a0a0a', color: '#e2e8f0' }}>
-                    
+
                     <div ref={backgroundRef} className="fixed inset-0 z-[-1]"></div>
-                    
+
                     <Header isHeaderVisible={isNavVisible} isHeaderGlass={isHeaderGlass} />
-                    
+
                     <main>
                         <Routes>
                             <Route path="/" element={<HomePage />} />
@@ -134,20 +134,20 @@ export default function App() {
                             <Route path="/news" element={<NewsPage />} />
                             <Route path="/contact" element={<ContactPage />} />
                             <Route path="/login" element={<LoginPage />} />
-                            <Route 
-                                path="/admin" 
+                            <Route
+                                path="/admin"
                                 element={
                                     <ProtectedRoute>
                                         <AdminPage />
                                     </ProtectedRoute>
-                                } 
+                                }
                             />
                         </Routes>
                     </main>
 
                     <footer className="bg-gray-900/50 border-t border-gray-800 py-8">
                         <div className="container mx-auto px-6 text-center text-gray-400">
-                            <p>&copy; 2025 The Whitebox AI Lab</p>
+                            <p>&copy; 2025 Neurosymbolic Lab @ PennState</p>
                         </div>
                     </footer>
                 </div>
