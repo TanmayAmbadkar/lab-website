@@ -6,7 +6,7 @@ const SEO = ({ title, description, keywords, image, url, type = 'website' }) => 
     const fullTitle = title ? `${title} | ${siteName}` : siteName;
     const defaultDescription = 'Research in Deep Learning, Formal Methods, and Program Synthesis at the Neurosymbolic Lab, PennState.';
     const metaDescription = description || defaultDescription;
-    const siteUrl = 'https://neurosymbolic.cis.upenn.edu'; // Placeholder, should be updated with actual domain
+    const siteUrl = 'https://neurosymbolic.netlify.app'; // Placeholder, should be updated with actual domain
     const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
 
     return (
