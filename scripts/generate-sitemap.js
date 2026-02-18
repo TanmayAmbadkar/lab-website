@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const SITE_URL = 'https://neurosymbolic.cis.upenn.edu'; // Update with actual domain
+const SITE_URL = 'https://neurosymbolic.netlify.app'; // Update with actual domain
 
 const routes = [
     { path: '/', priority: 1.0, changefreq: 'weekly' },

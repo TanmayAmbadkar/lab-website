@@ -11,8 +11,8 @@ const HomePage = () => {
         "@context": "https://schema.org",
         "@type": "EducationalOrganization",
         "name": "Neurosymbolic Lab @ PennState",
-        "url": "https://neurosymbolic.cis.upenn.edu", // Update with correct URL
-        "logo": "https://neurosymbolic.cis.upenn.edu/logo.svg", // Update with correct URL
+        "url": "https://neurosymbolic.netlify.app", // Update with correct URL
+        "logo": "https://neurosymbolic.netlify.app/logo.svg", // Update with correct URL
         "description": "Research in Deep Learning, Formal Methods, and Program Synthesis led by Prof. Abhinav Verma at Penn State.",
         "member": {
             "@type": "Person",

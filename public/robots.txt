@@ -3,4 +3,4 @@ User-agent: *
 Disallow: /admin
 Disallow: /login
 
-Sitemap: https://neurosymbolic.cis.upenn.edu/sitemap.xml
+Sitemap: https://neurosymbolic.netlify.app/sitemap.xml
