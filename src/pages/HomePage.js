@@ -1,13 +1,34 @@
 import React from 'react';
 import Button from '../components/Button';
 import SectionTitle from '../components/SectionTitle';
+import SEO from '../components/SEO';
 
 // --- Home Page Component ---
 const HomePage = () => {
     const targetTitle = 'Neurosymbolic Lab @ PennState';
 
+    const organizationSchema = {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Neurosymbolic Lab @ PennState",
+        "url": "https://neurosymbolic.cis.upenn.edu", // Update with correct URL
+        "logo": "https://neurosymbolic.cis.upenn.edu/logo.svg", // Update with correct URL
+        "description": "Research in Deep Learning, Formal Methods, and Program Synthesis led by Prof. Abhinav Verma at Penn State.",
+        "member": {
+            "@type": "Person",
+            "name": "Abhinav Verma"
+        }
+    };
+
     return (
         <>
+            <SEO
+                title="Home"
+                description="Neurosymbolic Lab at Penn State focuses on building reliable, transparent, and secure intelligent systems through machine learning and formal methods."
+            />
+            <script type="application/ld+json">
+                {JSON.stringify(organizationSchema)}
+            </script>
             <style>
                 {`
                     @keyframes rotate-glow {

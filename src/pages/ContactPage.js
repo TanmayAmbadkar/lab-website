@@ -1,4 +1,5 @@
 import React from 'react';
+import SEO from '../components/SEO';
 
 // --- Import Reusable Components ---
 import Card from '../components/Card';
@@ -8,18 +9,23 @@ import SectionTitle from '../components/SectionTitle';
 const ContactPage = () => {
     return (
         <div className="min-h-screen flex items-center justify-center pt-24">
+            <SEO
+                title="Contact"
+                description="Get in touch with the Neurosymbolic Lab at Penn State. Find our location and contact information."
+                keywords="Contact, Lab Location, Penn State, Neurosymbolic Lab"
+            />
             <section id="contact" className="w-full py-20 md:py-32">
                 <div className="container mx-auto px-6">
                     <SectionTitle>Get in Touch</SectionTitle>
                     <Card className="max-w-4xl mx-auto !p-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                            
+
                             {/* Left Side: Contact Info */}
                             <div className="space-y-6">
                                 <div>
                                     <h3 className="text-2xl font-bold text-white mb-2">Email</h3>
-                                    <a 
-                                        href="mailto:averma@psu.edu" 
+                                    <a
+                                        href="mailto:averma@psu.edu"
                                         className="text-blue-400 text-lg hover:text-blue-300 transition-colors duration-300"
                                     >
                                         verma@psu.edu
@@ -28,8 +34,8 @@ const ContactPage = () => {
                                 <div>
                                     <h3 className="text-2xl font-bold text-white mb-2">Location</h3>
                                     <p className="text-gray-400 text-lg">
-                                        Westgate Building<br/>
-                                        The Pennsylvania State University<br/>
+                                        Westgate Building<br />
+                                        The Pennsylvania State University<br />
                                         University Park, PA 16802
                                     </p>
                                 </div>

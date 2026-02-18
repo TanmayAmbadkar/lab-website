@@ -1,5 +1,6 @@
 import React from 'react';
 import { useData } from '../context/DataContext';
+import SEO from '../components/SEO';
 
 // --- Reusable Components ---
 import Card from '../components/Card';
@@ -26,7 +27,7 @@ const PeoplePage = () => {
     const phdStudents = people
         .filter(p => p.role === 'phd')
         .sort((a, b) => getLastName(a.name).localeCompare(getLastName(b.name)));
-        
+
     const mastersStudents = people
         .filter(p => p.role === 'ms')
         .sort((a, b) => getLastName(a.name).localeCompare(getLastName(b.name)));
@@ -37,6 +38,11 @@ const PeoplePage = () => {
 
     return (
         <div className="py-20 md:py-32 pt-40">
+            <SEO
+                title="People"
+                description="Meet the researchers, students, and collaborators at the Neurosymbolic Lab, Penn State."
+                keywords="Lab Members, Researchers, PhD Students, Abhinav Verma, Penn State"
+            />
             <div className="container mx-auto px-6">
                 {pi && (
                     <>
@@ -44,7 +50,7 @@ const PeoplePage = () => {
                         <div className="max-w-5xl mx-auto mb-20">
                             <Card className="!p-8">
                                 <div className="flex flex-col md:flex-row items-center gap-8">
-                                    <ProfileImage 
+                                    <ProfileImage
                                         src={pi.imageURL}
                                         name={pi.name}
                                         className="w-48 h-48 rounded-full border-4 border-gray-700 flex-shrink-0 object-cover"
@@ -52,7 +58,7 @@ const PeoplePage = () => {
                                     <div>
                                         <h3 className="text-3xl font-bold text-white">{pi.name}</h3>
                                         <p className="text-blue-400 text-lg mb-4">Hartz Family Career Development Assistant Professor</p>
-                                        
+
                                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-gray-300">
                                             {pi.email && <a href={`mailto:${pi.email}`} className="hover:text-white transition-colors">Email</a>}
                                             {pi.cv && <a href={pi.cv} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Website/CV</a>}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useData } from '../context/DataContext';
+import SEO from '../components/SEO';
 
 // --- Reusable Components ---
 import Card from '../components/Card';
@@ -16,6 +17,11 @@ const ProjectsPage = () => {
 
     return (
         <section id="research" className="py-20 md:py-32 pt-40">
+            <SEO
+                title="Research Projects"
+                description="Explore our cutting-edge research projects in neurosymbolic intelligence, formal methods, and program synthesis."
+                keywords="Research Projects, AI Research, Neurosymbolic AI, Formal Methods, Penn State"
+            />
             <div className="container mx-auto px-6">
                 <SectionTitle>Core Research Areas</SectionTitle>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

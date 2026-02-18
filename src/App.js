@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
+import { HelmetProvider } from 'react-helmet-async';
 import * as THREE from 'three';
 
 // --- Import Components ---
@@ -147,11 +148,13 @@ const AppContent = () => {
 // The main App component now just provides the context wrappers
 export default function App() {
     return (
-        <AuthProvider>
-            <DataProvider>
-                <AppContent />
-            </DataProvider>
-        </AuthProvider>
+        <HelmetProvider>
+            <AuthProvider>
+                <DataProvider>
+                    <AppContent />
+                </DataProvider>
+            </AuthProvider>
+        </HelmetProvider>
     );
 }
 

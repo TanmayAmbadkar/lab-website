@@ -1,5 +1,6 @@
 import React from 'react';
 import { useData } from '../context/DataContext';
+import SEO from '../components/SEO';
 
 // --- Reusable Components ---
 import Card from '../components/Card';
@@ -27,16 +28,40 @@ const NewsPage = () => {
 
     return (
         <section id="news" className="py-20 md:py-32 pt-40">
+            <SEO
+                title="News"
+                description="Latest news, achievements, and announcements from the Neurosymbolic Lab at Penn State."
+                keywords="Lab News, Achievements, AI Research, Penn State"
+            />
             <div className="container mx-auto px-6">
                 <SectionTitle>News & Achievements</SectionTitle>
                 <div className="max-w-4xl mx-auto space-y-3">
-                    {sortedNews.map((item) => (
-                        <Card key={item.id} className="!p-4">
-                            <p className="text-sm text-blue-400 mb-2">{formatDate(item.date)}</p>
-                            <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                            <p className="text-gray-400">{item.description}</p>
-                        </Card>
-                    ))}
+                    {sortedNews.map((item) => {
+                        const newsSchema = {
+                            "@context": "https://schema.org",
+                            "@type": "NewsArticle",
+                            "headline": item.title,
+                            "datePublished": item.date,
+                            "description": item.description,
+                            "author": {
+                                "@type": "Organization",
+                                "name": "Neurosymbolic Lab @ PennState"
+                            }
+                        };
+
+                        return (
+                            <React.Fragment key={item.id}>
+                                <script type="application/ld+json">
+                                    {JSON.stringify(newsSchema)}
+                                </script>
+                                <Card className="!p-4">
+                                    <p className="text-sm text-blue-400 mb-2">{formatDate(item.date)}</p>
+                                    <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                                    <p className="text-gray-400">{item.description}</p>
+                                </Card>
+                            </React.Fragment>
+                        );
+                    })}
                 </div>
             </div>
         </section>
