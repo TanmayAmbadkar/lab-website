@@ -5,12 +5,12 @@ import SEO from '../components/SEO';
 
 // --- Home Page Component ---
 const HomePage = () => {
-    const targetTitle = 'Neurosymbolic Lab @ PennState';
+    const targetTitle = 'Neurosymbolic AI Lab @ PennState';
 
     const organizationSchema = {
         "@context": "https://schema.org",
         "@type": "EducationalOrganization",
-        "name": "Neurosymbolic Lab @ PennState",
+        "name": "Neurosymbolic AI Lab @ PennState",
         "url": "https://neurosymbolic.netlify.app", // Update with correct URL
         "logo": "https://neurosymbolic.netlify.app/logo.svg", // Update with correct URL
         "description": "Research in Deep Learning, Formal Methods, and Program Synthesis led by Prof. Abhinav Verma at Penn State.",
@@ -24,7 +24,7 @@ const HomePage = () => {
         <>
             <SEO
                 title="Home"
-                description="Neurosymbolic Lab at Penn State focuses on building reliable, transparent, and secure intelligent systems through machine learning and formal methods."
+                description="Neurosymbolic AI Lab at Penn State focuses on building reliable, transparent, and secure intelligent systems through machine learning and formal methods."
             />
             <script type="application/ld+json">
                 {JSON.stringify(organizationSchema)}
@@ -60,7 +60,7 @@ const HomePage = () => {
                     </div>
 
                     <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8 mt-4">
-                        Led by Prof. Abhinav Verma at Penn State, we build intelligent systems that are reliable, transparent, and secure by combining machine learning and formal methods.
+                        We build intelligent systems that are reliable, transparent, and secure by combining machine learning and formal methods.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Button to="/research" variant="primary">Explore Our Work</Button>

@@ -11,8 +11,8 @@ const ContactPage = () => {
         <div className="min-h-screen flex items-center justify-center pt-24">
             <SEO
                 title="Contact"
-                description="Get in touch with the Neurosymbolic Lab at Penn State. Find our location and contact information."
-                keywords="Contact, Lab Location, Penn State, Neurosymbolic Lab"
+                description="Get in touch with the Neurosymbolic AI Lab at Penn State. Find our location and contact information."
+                keywords="Contact, Lab Location, Penn State, Neurosymbolic AI Lab"
             />
             <section id="contact" className="w-full py-20 md:py-32">
                 <div className="container mx-auto px-6">

@@ -30,7 +30,7 @@ const NewsPage = () => {
         <section id="news" className="py-20 md:py-32 pt-40">
             <SEO
                 title="News"
-                description="Latest news, achievements, and announcements from the Neurosymbolic Lab at Penn State."
+                description="Latest news, achievements, and announcements from the Neurosymbolic AI Lab at Penn State."
                 keywords="Lab News, Achievements, AI Research, Penn State"
             />
             <div className="container mx-auto px-6">
@@ -45,7 +45,7 @@ const NewsPage = () => {
                             "description": item.description,
                             "author": {
                                 "@type": "Organization",
-                                "name": "Neurosymbolic Lab @ PennState"
+                                "name": "Neurosymbolic AI Lab @ PennState"
                             }
                         };
 

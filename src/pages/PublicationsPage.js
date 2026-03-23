@@ -27,7 +27,7 @@ const PublicationsPage = () => {
         <section id="publications" className="py-20 md:py-32 pt-40">
             <SEO
                 title="Publications"
-                description="Selected research publications from the Neurosymbolic Lab at Penn State, covering topics in machine learning, formal methods, and program synthesis."
+                description="Selected research publications from the Neurosymbolic AI Lab at Penn State, covering topics in machine learning, formal methods, and program synthesis."
                 keywords="Research Papers, Publications, Neurosymbolic AI, Formal Methods, Penn State"
             />
             <div className="container mx-auto px-6">

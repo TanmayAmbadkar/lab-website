@@ -40,7 +40,7 @@ const PeoplePage = () => {
         <div className="py-20 md:py-32 pt-40">
             <SEO
                 title="People"
-                description="Meet the researchers, students, and collaborators at the Neurosymbolic Lab, Penn State."
+                description="Meet the researchers, students, and collaborators at the Neurosymbolic AI Lab, Penn State."
                 keywords="Lab Members, Researchers, PhD Students, Abhinav Verma, Penn State"
             />
             <div className="container mx-auto px-6">
