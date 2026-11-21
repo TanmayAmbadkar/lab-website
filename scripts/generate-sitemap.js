@@ -10,6 +10,7 @@ const routes = [
     { path: '/publications', priority: 0.9, changefreq: 'weekly' },
     { path: '/news', priority: 0.8, changefreq: 'weekly' },
     { path: '/contact', priority: 0.5, changefreq: 'yearly' },
+    { path: '/mcpo', priority: 0.9, changefreq: 'monthly' },
 ];
 
 const generateSitemap = () => {

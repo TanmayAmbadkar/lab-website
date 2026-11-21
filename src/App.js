@@ -20,6 +20,13 @@ import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+const StaticRedirect = ({ to }) => {
+    useEffect(() => {
+        window.location.replace(to);
+    }, [to]);
+    return null;
+};
+
 const AppContent = () => {
     const [isNavVisible, setIsNavVisible] = useState(true);
     const [isHeaderGlass, setIsHeaderGlass] = useState(false);
@@ -167,6 +174,7 @@ const AppContent = () => {
                     <Route path="/publications" element={<PublicationsPage />} />
                     <Route path="/news" element={<NewsPage />} />
                     <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/mcpo" element={<StaticRedirect to="/mcpo/index.html" />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route
                         path="/admin"
