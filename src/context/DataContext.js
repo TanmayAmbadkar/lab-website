@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 
 const DataContext = createContext();
 
@@ -8,56 +8,82 @@ export function useData() {
     return useContext(DataContext);
 }
 
+const COLLECTIONS_TO_FETCH = ['people', 'projects', 'news', 'publications'];
+
 export function DataProvider({ children }) {
-    const [data, setData] = useState({});
+    const [data, setData] = useState({
+        people: [],
+        projects: [],
+        news: [],
+        publications: [],
+    });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const collectionsToFetch = ['people', 'projects', 'news', 'publications'];
-        const unsubscribes = []; // To hold our listener cleanup functions
+        const unsubscribes = [];
+        const settled = new Set();
+        let isMounted = true;
 
-        // Set initial loading state
-        setLoading(true);
-
-        collectionsToFetch.forEach(collectionName => {
-            let q;
-            // --- UPDATED: Add specific ordering for the 'news' collection ---
-            if (collectionName === 'news') {
-                // Order news by date in descending order (newest first)
-                q = query(collection(db, collectionName), orderBy('date', 'desc'));
-            } else {
-                // For other collections, fetch without a specific order
-                q = query(collection(db, collectionName));
+        const markSettled = (collectionName) => {
+            settled.add(collectionName);
+            if (isMounted && settled.size >= COLLECTIONS_TO_FETCH.length) {
+                setLoading(false);
             }
-            
-            const unsubscribe = onSnapshot(q, (querySnapshot) => {
-                const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                // Update the state for the specific collection that changed
-                setData(prevData => ({
-                    ...prevData,
-                    [collectionName]: docs,
-                }));
-            }, (error) => {
-                console.error(`Error fetching ${collectionName}:`, error);
-            });
+        };
+
+        setLoading(true);
+        setError(null);
+
+        COLLECTIONS_TO_FETCH.forEach((collectionName) => {
+            const q = query(collection(db, collectionName));
+
+            const unsubscribe = onSnapshot(
+                q,
+                (querySnapshot) => {
+                    const docs = querySnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+
+                    if (isMounted) {
+                        setData((prevData) => ({
+                            ...prevData,
+                            [collectionName]: docs,
+                        }));
+                    }
+                    markSettled(collectionName);
+                },
+                (err) => {
+                    console.error(`Error fetching ${collectionName}:`, err);
+                    if (isMounted) {
+                        setError('Some content could not be loaded. Please try refreshing the page.');
+                    }
+                    markSettled(collectionName);
+                }
+            );
 
             unsubscribes.push(unsubscribe);
         });
 
-        // A simple way to determine the initial load is complete
-        const initialLoadTimer = setTimeout(() => setLoading(false), 2000);
+        // Safety fallback in case Firestore is unreachable or offline
+        const fallbackTimer = setTimeout(() => {
+            if (isMounted) {
+                setLoading(false);
+            }
+        }, 4000);
 
-        // Cleanup function: This is crucial to prevent memory leaks.
         return () => {
-            unsubscribes.forEach(unsub => unsub());
-            clearTimeout(initialLoadTimer);
+            isMounted = false;
+            unsubscribes.forEach((unsub) => unsub());
+            clearTimeout(fallbackTimer);
         };
-    }, []); // Empty dependency array means this runs only once on mount
+    }, []);
 
     const value = {
         ...data,
         loading,
+        error,
     };
 
     return (

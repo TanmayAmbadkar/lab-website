@@ -1,110 +1,144 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import Button from '../components/Button';
+import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
+import { useData } from '../context/DataContext';
+import { parseFlexibleDate, formatDisplayDate } from '../utils/dates';
 
-// --- Home Page Component with Animated Title ---
 const HomePage = () => {
-    const [animatedTitle, setAnimatedTitle] = useState('');
-    const targetTitle = 'The Whitebox AI Lab';
+    const { news = [], projects = [] } = useData();
 
-    useEffect(() => {
-        let animationFrameId;
-        let iteration = 0;
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!<>-_[]{}=+*^?#';
-
-        const animate = () => {
-            let newTitle = targetTitle
-                .split('')
-                .map((letter, index) => {
-                    if (index < iteration) {
-                        return targetTitle[index];
-                    }
-                    if (letter === ' ') return ' ';
-                    return chars[Math.floor(Math.random() * chars.length)];
-                })
-                .join('');
-            
-            setAnimatedTitle(newTitle);
-
-            if (iteration < targetTitle.length) {
-                iteration += 1 / 3; // Controls the speed of the reveal
-                animationFrameId = requestAnimationFrame(animate);
-            } else {
-                setAnimatedTitle(targetTitle); // Ensure it ends on the correct title
-            }
-        };
-
-        animationFrameId = requestAnimationFrame(animate);
-
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, []); // Empty dependency array ensures this runs only once on mount
+    const recentNews = useMemo(() => {
+        return [...news]
+            .sort((a, b) => parseFlexibleDate(b.date) - parseFlexibleDate(a.date))
+            .slice(0, 3);
+    }, [news]);
 
     return (
         <>
-            <style>
-                {`
-                    @keyframes rotate-glow {
-                        0% { transform: translate(-50%, -50%) rotate(0deg); }
-                        100% { transform: translate(-50%, -50%) rotate(360deg); }
-                    }
-                    .animated-glow-background {
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        width: 120%;
-                        height: 120%;
-                        background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(168, 85, 247, 0.2) 50%, rgba(17, 24, 39, 0) 70%);
-                        filter: blur(40px);
-                        animation: rotate-glow 20s linear infinite;
-                        z-index: -1;
-                    }
-                `}
-            </style>
-            <section className="relative h-screen flex items-center justify-center text-center overflow-hidden">
-                <div className="absolute inset-0 bg-black opacity-50"></div>
-                
-                <div className="relative z-10 px-4">
+            <section className="relative min-h-screen flex items-center justify-center text-center overflow-hidden pt-20">
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-transparent pointer-events-none" />
+
+                <div className="relative z-10 px-6 max-w-5xl mx-auto">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs md:text-sm text-blue-300 font-medium tracking-wide mb-6">
+                        <span>Penn State University</span>
+                        <span aria-hidden="true" className="text-gray-500">&middot;</span>
+                        <span>Computer Science &amp; Engineering</span>
+                    </div>
+
                     <div className="relative inline-block">
-                        <div className="animated-glow-background"></div>
-                        <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight" style={{ minHeight: '1.5em' }}>
-                            {animatedTitle}
+                        <div className="animated-glow-background" />
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-tight">
+                            The Neurosymbolic AI Lab
                         </h1>
                     </div>
 
-                    <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8 mt-4">
+                    <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mt-6 mb-10 leading-relaxed">
                         Led by Prof. Abhinav Verma at Penn State, we build intelligent systems that are reliable, transparent, and secure by combining machine learning and formal methods.
                     </p>
+
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button to="/research" variant="primary">Explore Our Work</Button>
-                        <Button to="/contact" variant="secondary">Get In Touch</Button>
+                        <Button to="/research" variant="primary">Explore Our Research</Button>
+                        <Button to="/publications" variant="secondary">View Publications</Button>
                     </div>
                 </div>
             </section>
 
-            <section id="about" className="py-20 md:py-32">
+            <section id="about" className="py-20 md:py-28">
                 <div className="container mx-auto px-6">
                     <SectionTitle>Research Overview</SectionTitle>
-                    <div className="max-w-4xl mx-auto text-left text-gray-400 space-y-6">
-                        <p className="text-lg">
-                            Our research is dedicated to advancing the frontier of <strong>Trustworthy Artificial Intelligence</strong>. While modern Deep Neural Networks are powerful, their "black-box" nature presents significant challenges that limit their deployment in high-stakes environments. These models are often:
-                        </p>
-                        <ul className="list-disc list-inside space-y-2 pl-4">
-                            <li><strong>Hard to interpret</strong>, making them difficult to audit and debug.</li>
-                            <li><strong>Hard to formally verify</strong>, preventing provable guarantees of their behavior.</li>
-                            <li><strong>Unreliable</strong>, showing high variability based on factors like random initialization.</li>
-                            <li><strong>Lacking in domain awareness</strong>, unable to incorporate commonsense knowledge.</li>
-                        </ul>
-                        <p>
-                            The Neurosymbolic Intelligence Lab directly confronts these drawbacks. Our central mission is to build intelligent systems that are <strong>reliable, transparent, and secure</strong> by pioneering new techniques at the intersection of <strong>machine learning</strong> and <strong>formal methods</strong>. By creating deep connections between the inductive learning of neural networks and the rigorous logic of symbolic reasoning, we are forging a path toward a new generation of AI that can be truly trusted.
-                        </p>
-                    </div>
+                    <Card className="max-w-4xl mx-auto">
+                        <div className="text-left text-gray-300 space-y-6 leading-relaxed">
+                            <p className="text-lg">
+                                Our research is dedicated to advancing the frontier of{' '}
+                                <strong className="text-white font-semibold">Trustworthy Artificial Intelligence</strong>. While modern Deep Neural Networks are powerful, their &ldquo;black-box&rdquo; nature presents significant challenges that limit their deployment in high-stakes environments. These models are often:
+                            </p>
+                            <ul className="space-y-3 pl-5 list-disc marker:text-blue-400">
+                                <li>
+                                    <strong className="text-white font-semibold">Hard to interpret</strong>, making them difficult to audit and debug.
+                                </li>
+                                <li>
+                                    <strong className="text-white font-semibold">Hard to formally verify</strong>, preventing provable guarantees of their behavior.
+                                </li>
+                                <li>
+                                    <strong className="text-white font-semibold">Unreliable</strong>, showing high variability based on factors like random initialization.
+                                </li>
+                                <li>
+                                    <strong className="text-white font-semibold">Lacking in domain awareness</strong>, unable to incorporate commonsense knowledge.
+                                </li>
+                            </ul>
+                            <p>
+                                <strong className="text-white font-semibold">The Neurosymbolic AI Lab</strong> directly confronts these drawbacks. Our central mission is to build intelligent systems that are{' '}
+                                <strong className="text-white font-semibold">reliable, transparent, and secure</strong> by pioneering new techniques at the intersection of{' '}
+                                <strong className="text-white font-semibold">machine learning</strong> and{' '}
+                                <strong className="text-white font-semibold">formal methods</strong>. By creating deep connections between the inductive learning of neural networks and the rigorous logic of symbolic reasoning, we are forging a path toward a new generation of AI that can be truly trusted.
+                            </p>
+                        </div>
+                    </Card>
                 </div>
             </section>
+
+            {projects.length > 0 && (
+                <section className="py-12 md:py-20">
+                    <div className="container mx-auto px-6">
+                        <SectionTitle subtitle="Core themes driving our work in neurosymbolic AI and formal verification.">
+                            Research Pillars
+                        </SectionTitle>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                            {projects.slice(0, 3).map((project) => (
+                                <Card key={project.id} interactive className="flex flex-col">
+                                    <h3 className="text-xl font-bold text-white mb-3">{project.title}</h3>
+                                    <p className="text-gray-400 text-sm leading-relaxed flex-1">{project.description}</p>
+                                </Card>
+                            ))}
+                        </div>
+                        <div className="text-center mt-8">
+                            <Link
+                                to="/research"
+                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                                Explore all research areas <span aria-hidden="true">&rarr;</span>
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {recentNews.length > 0 && (
+                <section className="py-12 md:py-20">
+                    <div className="container mx-auto px-6">
+                        <SectionTitle subtitle="Recent paper acceptances, awards, and milestones from the lab.">
+                            Latest News
+                        </SectionTitle>
+                        <div className="max-w-4xl mx-auto space-y-4">
+                            {recentNews.map((item) => (
+                                <Card key={item.id} interactive className="!p-6">
+                                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-6">
+                                        <span className="text-xs font-semibold uppercase tracking-wider text-blue-400 sm:w-36 flex-shrink-0">
+                                            {formatDisplayDate(item.date)}
+                                        </span>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white mb-1">{item.title}</h3>
+                                            <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                        <div className="text-center mt-8">
+                            <Link
+                                to="/news"
+                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                                View all news &amp; achievements <span aria-hidden="true">&rarr;</span>
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+            )}
         </>
     );
 };
 
 export default HomePage;
-

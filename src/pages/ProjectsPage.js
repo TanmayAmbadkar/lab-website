@@ -5,27 +5,51 @@ import { useData } from '../context/DataContext';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
 
-// --- Projects Page Component ---
 const ProjectsPage = () => {
-    // Get data and loading state from the central DataContext
-    const { projects = [], loading } = useData();
+    const { projects = [], loading, error } = useData();
 
     if (loading) {
-        return <div className="text-center py-40 text-white">Loading...</div>;
+        return (
+            <div className="container mx-auto px-6 py-40 text-center text-gray-300" role="status">
+                Loading research areas...
+            </div>
+        );
     }
 
     return (
-        <section id="research" className="py-20 md:py-32 pt-40">
+        <section id="research" className="py-20 md:py-28 pt-32 md:pt-40">
             <div className="container mx-auto px-6">
-                <SectionTitle>Core Research Areas</SectionTitle>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {projects.map((project) => (
-                        <Card key={project.id}>
-                            <h3 className="text-2xl font-bold text-white mb-3">{project.title}</h3>
-                            <p className="text-gray-400">{project.description}</p>
-                        </Card>
-                    ))}
-                </div>
+                <SectionTitle
+                    as="h1"
+                    subtitle="Combining inductive learning with symbolic reasoning and formal verification to create reliable AI."
+                >
+                    Core Research Areas
+                </SectionTitle>
+
+                {error && (
+                    <div role="alert" className="max-w-2xl mx-auto mb-10 rounded-xl bg-red-950/60 border border-red-500/30 px-5 py-4 text-center text-sm text-red-200">
+                        {error}
+                    </div>
+                )}
+
+                {projects.length === 0 ? (
+                    <Card className="max-w-xl mx-auto text-center text-gray-400">
+                        No research areas are listed yet. Please check back soon.
+                    </Card>
+                ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                        {projects.map((project) => (
+                            <Card key={project.id} interactive className="flex flex-col">
+                                <h2 className="text-xl md:text-2xl font-bold text-white mb-3">
+                                    {project.title}
+                                </h2>
+                                <p className="text-gray-300 leading-relaxed flex-1">
+                                    {project.description}
+                                </p>
+                            </Card>
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     );

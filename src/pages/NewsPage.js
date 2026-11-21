@@ -1,35 +1,59 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useData } from '../context/DataContext';
+import { parseFlexibleDate, formatDisplayDate } from '../utils/dates';
 
 // --- Reusable Components ---
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
 
-// --- News Page Component ---
 const NewsPage = () => {
-    // Get data and loading state from the central DataContext
-    const { news = [], loading } = useData();
+    const { news = [], loading, error } = useData();
 
-    // --- UPDATED: Correctly sort news items by parsing the date string ---
-    const sortedNews = [...news].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const sortedNews = useMemo(() => {
+        return [...news].sort((a, b) => parseFlexibleDate(b.date) - parseFlexibleDate(a.date));
+    }, [news]);
 
     if (loading) {
-        return <div className="text-center py-40 text-white">Loading...</div>;
+        return (
+            <div className="container mx-auto px-6 py-40 text-center text-gray-300" role="status">
+                Loading news...
+            </div>
+        );
     }
 
     return (
-        <section id="news" className="py-20 md:py-32 pt-40">
+        <section id="news" className="py-20 md:py-28 pt-32 md:pt-40">
             <div className="container mx-auto px-6">
-                <SectionTitle>News & Achievements</SectionTitle>
-                <div className="max-w-4xl mx-auto space-y-6">
-                    {sortedNews.map((item) => (
-                        <Card key={item.id} className="!p-6">
-                            <p className="text-sm text-blue-400 mb-2">{item.date}</p>
-                            <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                            <p className="text-gray-400">{item.description}</p>
-                        </Card>
-                    ))}
-                </div>
+                <SectionTitle
+                    as="h1"
+                    subtitle="Announcements, awards, paper acceptances, and lab milestones."
+                >
+                    News &amp; Achievements
+                </SectionTitle>
+
+                {error && (
+                    <div role="alert" className="max-w-2xl mx-auto mb-10 rounded-xl bg-red-950/60 border border-red-500/30 px-5 py-4 text-center text-sm text-red-200">
+                        {error}
+                    </div>
+                )}
+
+                {sortedNews.length === 0 ? (
+                    <Card className="max-w-xl mx-auto text-center text-gray-400">
+                        No news announcements yet. Please check back soon.
+                    </Card>
+                ) : (
+                    <div className="max-w-4xl mx-auto space-y-5">
+                        {sortedNews.map((item) => (
+                            <Card key={item.id} interactive className="!p-6">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-blue-400 mb-2">
+                                    {formatDisplayDate(item.date)}
+                                </p>
+                                <h2 className="text-xl font-bold text-white mb-2">{item.title}</h2>
+                                <p className="text-gray-300 leading-relaxed">{item.description}</p>
+                            </Card>
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     );

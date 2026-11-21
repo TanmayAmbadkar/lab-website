@@ -1,61 +1,59 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSpring, animated } from 'react-spring';
 
 const IntroAnimation = ({ isLoaded, onAnimationComplete }) => {
-    // This animation handles the reveal sequence once data is loaded
-    const revealAnimation = useSpring({
-        // The animation starts when isLoaded becomes true
-        from: { scale: 1, backgroundColor: 'black', opacity: 1 },
+    const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    useEffect(() => {
+        if (prefersReducedMotion && isLoaded) {
+            onAnimationComplete();
+        }
+    }, [prefersReducedMotion, isLoaded, onAnimationComplete]);
+
+    const overlaySpring = useSpring({
+        from: { opacity: 1 },
         to: async (next) => {
-            if (isLoaded) {
-                // The box expands to cover the screen
-                await next({ scale: 50, config: { duration: 500, easing: t => t * t * t } });
-                // The entire overlay fades out
-                // await next({ opacity: 0, config: { duration: 500 } });
-                onAnimationComplete(); // Signal completion
+            if (isLoaded && !prefersReducedMotion) {
+                await next({ opacity: 0, config: { duration: 400 } });
+                onAnimationComplete();
             }
         },
     });
 
-    return (
-        <>
-            <style>
-                {`
-                    .intro-container-react {
-                        position: fixed;
-                        inset: 0;
-                        z-index: 100;
-                        background-color: transparent; /* The initial white screen */
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        overflow: hidden;
-                    }
+    const boxSpring = useSpring({
+        from: { transform: 'scale(0.95)', opacity: 0.9 },
+        to: isLoaded && !prefersReducedMotion
+            ? { transform: 'scale(1.08)', opacity: 0 }
+            : { transform: 'scale(1)', opacity: 1 },
+        config: { duration: 380 },
+    });
 
-                    .loader-outline-react {
-                        width: 60px;
-                        height: 60px;
-                        /* --- FIX: The background is now transparent --- */
-                        background-color: black; 
-                        border: 2px solid #0a0a0a; /* Black outline */
-                        border-radius: 8px;
-                    }
-                `}
-            </style>
-            <div id="intro-container-react" className="intro-container-react">
-                {/* If data is NOT loaded, it shows the pulsing outline loader.
-                  If data IS loaded, it shows the animated solid box that will expand.
-                */}
-                {!isLoaded ? (
-                    <div className="loader-outline-react animate-pulse"></div>
-                ) : (
-                    // This animated div gets its solid black background from the useSpring hook
-                    <animated.div style={revealAnimation} className="loader-outline-react" />
-                )}
-            </div>
-        </>
+    if (prefersReducedMotion && isLoaded) {
+        return null;
+    }
+
+    return (
+        <animated.div
+            style={overlaySpring}
+            aria-hidden="true"
+            className="fixed inset-0 z-[100] bg-[#0a0a0a] flex flex-col items-center justify-center gap-5 pointer-events-none"
+        >
+            <animated.div
+                style={boxSpring}
+                className={`w-12 h-12 rounded-xl border border-white/25 bg-white/5 shadow-lg shadow-blue-500/10 flex items-center justify-center ${
+                    !isLoaded ? 'animate-pulse' : ''
+                }`}
+            >
+                <div className="w-4 h-4 rounded-sm border border-blue-400/80" />
+            </animated.div>
+            <p className="text-xs uppercase tracking-[0.25em] text-gray-400 font-medium">
+                The Neurosymbolic AI Lab
+            </p>
+        </animated.div>
     );
 };
 
 export default IntroAnimation;
-
