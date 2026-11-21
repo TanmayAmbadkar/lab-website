@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import { parseFlexibleDate, formatDisplayDate } from '../utils/dates';
+import SEO from '../components/SEO';
 
 // --- Reusable Components ---
 import Card from '../components/Card';
@@ -23,6 +24,12 @@ const NewsPage = () => {
 
     return (
         <section id="news" className="py-20 md:py-28 pt-32 md:pt-40">
+            <SEO
+                title="News"
+                description="Latest news, achievements, and announcements from the Neurosymbolic AI Lab at Penn State."
+                keywords="Lab News, Achievements, AI Research, Penn State"
+                url="/news"
+            />
             <div className="container mx-auto px-6">
                 <SectionTitle
                     as="h1"
@@ -43,15 +50,35 @@ const NewsPage = () => {
                     </Card>
                 ) : (
                     <div className="max-w-4xl mx-auto space-y-5">
-                        {sortedNews.map((item) => (
-                            <Card key={item.id} interactive className="!p-6">
-                                <p className="text-xs font-semibold uppercase tracking-wider text-blue-400 mb-2">
-                                    {formatDisplayDate(item.date)}
-                                </p>
-                                <h2 className="text-xl font-bold text-white mb-2">{item.title}</h2>
-                                <p className="text-gray-300 leading-relaxed">{item.description}</p>
-                            </Card>
-                        ))}
+                        {sortedNews.map((item) => {
+                            const formattedDate = formatDisplayDate(item.date);
+                            const newsSchema = {
+                                '@context': 'https://schema.org',
+                                '@type': 'NewsArticle',
+                                headline: item.title,
+                                datePublished: typeof item.date === 'string' ? item.date : formattedDate,
+                                description: item.description,
+                                author: {
+                                    '@type': 'Organization',
+                                    name: 'The Neurosymbolic AI Lab @ Penn State',
+                                },
+                            };
+
+                            return (
+                                <React.Fragment key={item.id}>
+                                    <script type="application/ld+json">
+                                        {JSON.stringify(newsSchema)}
+                                    </script>
+                                    <Card interactive className="!p-6">
+                                        <p className="text-xs font-semibold uppercase tracking-wider text-blue-400 mb-2">
+                                            {formattedDate}
+                                        </p>
+                                        <h2 className="text-xl font-bold text-white mb-2">{item.title}</h2>
+                                        <p className="text-gray-300 leading-relaxed">{item.description}</p>
+                                    </Card>
+                                </React.Fragment>
+                            );
+                        })}
                     </div>
                 )}
             </div>

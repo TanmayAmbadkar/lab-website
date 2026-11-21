@@ -1,5 +1,6 @@
 import React from 'react';
 import { useData } from '../context/DataContext';
+import SEO from '../components/SEO';
 
 // --- Import Reusable Components ---
 import Card from '../components/Card';
@@ -12,6 +13,12 @@ const ContactPage = () => {
 
     return (
         <section id="contact" className="py-20 md:py-28 pt-32 md:pt-40">
+            <SEO
+                title="Contact"
+                description="Get in touch with the Neurosymbolic AI Lab at Penn State. Find our location and contact information."
+                keywords="Contact, Lab Location, Penn State, Neurosymbolic AI Lab"
+                url="/contact"
+            />
             <div className="container mx-auto px-6">
                 <SectionTitle
                     as="h1"

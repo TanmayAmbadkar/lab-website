@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
+import SEO from '../components/SEO';
 import { useData } from '../context/DataContext';
 import { parseFlexibleDate, formatDisplayDate } from '../utils/dates';
 
@@ -15,8 +16,30 @@ const HomePage = () => {
             .slice(0, 3);
     }, [news]);
 
+    const organizationSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'EducationalOrganization',
+        name: 'The Neurosymbolic AI Lab @ Penn State',
+        url: 'https://neurosymbolic.netlify.app',
+        logo: 'https://neurosymbolic.netlify.app/logo512.png',
+        description:
+            'Research in Deep Learning, Formal Methods, and Program Synthesis led by Prof. Abhinav Verma at Penn State.',
+        member: {
+            '@type': 'Person',
+            name: 'Abhinav Verma',
+        },
+    };
+
     return (
         <>
+            <SEO
+                title="Home"
+                description="The Neurosymbolic AI Lab at Penn State focuses on building reliable, transparent, and secure intelligent systems through machine learning and formal methods."
+            />
+            <script type="application/ld+json">
+                {JSON.stringify(organizationSchema)}
+            </script>
+
             <section className="relative min-h-screen flex items-center justify-center text-center overflow-hidden pt-20">
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-transparent pointer-events-none" />
 

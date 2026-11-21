@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { DataProvider, useData } from './context/DataContext';
+import { DataProvider } from './context/DataContext';
+import { HelmetProvider } from 'react-helmet-async';
 import * as THREE from 'three';
 
 // --- Import Components ---
 import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
-import IntroAnimation from './components/IntroAnimation';
-import Button from './components/Button';
 
 // --- Import Pages ---
 import HomePage from './pages/HomePage';
@@ -19,49 +18,17 @@ import NewsPage from './pages/NewsPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
-
-const NotFoundPage = () => (
-    <section className="flex items-center justify-center py-40 px-6 text-center">
-        <div className="max-w-md">
-            <p className="text-sm font-semibold uppercase tracking-widest text-blue-400 mb-3">404</p>
-            <h1 className="text-4xl font-extrabold text-white mb-4">Page Not Found</h1>
-            <p className="text-gray-400 mb-8">
-                The page you are looking for doesn&apos;t exist or may have been moved.
-            </p>
-            <Button to="/" variant="primary">
-                Return Home
-            </Button>
-        </div>
-    </section>
-);
+import NotFoundPage from './pages/NotFoundPage';
 
 const AppContent = () => {
-    const [showIntro, setShowIntro] = useState(false);
-    const [isSessionChecked, setIsSessionChecked] = useState(false);
-    const { loading: isDataLoading } = useData();
-
     const [isNavVisible, setIsNavVisible] = useState(true);
     const [isHeaderGlass, setIsHeaderGlass] = useState(false);
     const lastScrollY = useRef(0);
     const location = useLocation();
     const backgroundRef = useRef(null);
 
-    // --- Intro Animation Logic ---
-    useEffect(() => {
-        const prefersReducedMotion =
-            window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const introShownInSession = sessionStorage.getItem('introShown');
-
-        if (!introShownInSession && !prefersReducedMotion) {
-            setShowIntro(true);
-            sessionStorage.setItem('introShown', 'true');
-        }
-        setIsSessionChecked(true);
-    }, []);
-
     // --- Persistent Background Starfield ---
     useEffect(() => {
-        if (!isSessionChecked) return undefined;
         const currentMount = backgroundRef.current;
         if (!currentMount) return undefined;
 
@@ -79,7 +46,6 @@ const AppContent = () => {
         try {
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
         } catch (err) {
-            // Gracefully skip WebGL starfield if WebGL is unavailable
             return undefined;
         }
 
@@ -163,7 +129,7 @@ const AppContent = () => {
                 currentMount.removeChild(renderer.domElement);
             }
         };
-    }, [isSessionChecked]);
+    }, []);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -182,84 +148,70 @@ const AppContent = () => {
             lastScrollY.current = currentScrollY;
         };
 
-        if (!showIntro) {
-            window.addEventListener('scroll', handleScroll, { passive: true });
-        }
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [showIntro]);
-
-    const handleAnimationComplete = useCallback(() => {
-        setShowIntro(false);
     }, []);
 
-    if (!isSessionChecked) {
-        return null;
-    }
-
     return (
-        <>
-            {showIntro && (
-                <IntroAnimation isLoaded={!isDataLoading} onAnimationComplete={handleAnimationComplete} />
-            )}
+        <div className="antialiased relative min-h-screen flex flex-col z-0 text-slate-200">
+            {/* Visible above body's #0a0a0a background and behind all page content */}
+            <div ref={backgroundRef} aria-hidden="true" className="fixed inset-0 -z-10 pointer-events-none" />
 
-            <div className="antialiased relative min-h-screen flex flex-col z-0 text-slate-200">
-                {/* Visible above body's #0a0a0a background and behind all page content */}
-                <div ref={backgroundRef} aria-hidden="true" className="fixed inset-0 -z-10 pointer-events-none" />
+            <Header isHeaderVisible={isNavVisible} isHeaderGlass={isHeaderGlass} />
 
-                <Header isHeaderVisible={isNavVisible} isHeaderGlass={isHeaderGlass} />
+            <main className="flex-1">
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/people" element={<PeoplePage />} />
+                    <Route path="/research" element={<ProjectsPage />} />
+                    <Route path="/publications" element={<PublicationsPage />} />
+                    <Route path="/news" element={<NewsPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route
+                        path="/admin"
+                        element={
+                            <ProtectedRoute>
+                                <AdminPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+            </main>
 
-                <main className="flex-1">
-                    <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/people" element={<PeoplePage />} />
-                        <Route path="/research" element={<ProjectsPage />} />
-                        <Route path="/publications" element={<PublicationsPage />} />
-                        <Route path="/news" element={<NewsPage />} />
-                        <Route path="/contact" element={<ContactPage />} />
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route
-                            path="/admin"
-                            element={
-                                <ProtectedRoute>
-                                    <AdminPage />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route path="*" element={<NotFoundPage />} />
-                    </Routes>
-                </main>
-
-                <footer className="bg-gray-950/70 backdrop-blur-md border-t border-white/10 py-10 mt-16">
-                    <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
-                        <div className="text-center md:text-left">
-                            <p className="font-semibold text-gray-200">The Neurosymbolic AI Lab</p>
-                            <p className="text-xs text-gray-400 mt-1">
-                                Department of Computer Science and Engineering &middot; The Pennsylvania State University
-                            </p>
-                        </div>
-                        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs">
-                            <Link to="/people" className="hover:text-white transition-colors">People</Link>
-                            <Link to="/research" className="hover:text-white transition-colors">Research</Link>
-                            <Link to="/publications" className="hover:text-white transition-colors">Publications</Link>
-                            <Link to="/news" className="hover:text-white transition-colors">News</Link>
-                            <Link to="/contact" className="hover:text-white transition-colors">Contact</Link>
-                        </div>
-                        <p className="text-xs text-gray-500">
-                            &copy; {new Date().getFullYear()} The Neurosymbolic AI Lab
+            <footer className="bg-gray-950/70 backdrop-blur-md border-t border-white/10 py-10 mt-16">
+                <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
+                    <div className="text-center md:text-left">
+                        <p className="font-semibold text-gray-200">The Neurosymbolic AI Lab</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                            Department of Computer Science and Engineering &middot; The Pennsylvania State University
                         </p>
                     </div>
-                </footer>
-            </div>
-        </>
+                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs">
+                        <Link to="/people" className="hover:text-white transition-colors">People</Link>
+                        <Link to="/research" className="hover:text-white transition-colors">Research</Link>
+                        <Link to="/publications" className="hover:text-white transition-colors">Publications</Link>
+                        <Link to="/news" className="hover:text-white transition-colors">News</Link>
+                        <Link to="/contact" className="hover:text-white transition-colors">Contact</Link>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                        &copy; {new Date().getFullYear()} The Neurosymbolic AI Lab
+                    </p>
+                </div>
+            </footer>
+        </div>
     );
 };
 
 export default function App() {
     return (
-        <AuthProvider>
-            <DataProvider>
-                <AppContent />
-            </DataProvider>
-        </AuthProvider>
+        <HelmetProvider>
+            <AuthProvider>
+                <DataProvider>
+                    <AppContent />
+                </DataProvider>
+            </AuthProvider>
+        </HelmetProvider>
     );
 }

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { db } from '../firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, Timestamp } from 'firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-import { formatDisplayDate, isFirestoreTimestamp } from '../utils/dates';
+import { formatDisplayDate, toDateInputValue } from '../utils/dates';
 
 const ROLE_OPTIONS = [
     { value: 'pi', label: 'Principal Investigator (pi)' },
@@ -42,7 +42,7 @@ const COLLECTION_CONFIGS = {
     news: {
         name: 'News',
         fields: [
-            { name: 'date', label: 'Date', type: 'text', placeholder: 'e.g. August 2025', required: true },
+            { name: 'date', label: 'Date', type: 'date', required: true },
             { name: 'title', label: 'Title', type: 'text', required: true },
             { name: 'description', label: 'Description', type: 'textarea', required: true },
         ],
@@ -50,23 +50,23 @@ const COLLECTION_CONFIGS = {
     publications: {
         name: 'Publications',
         fields: [
+            { name: 'date', label: 'Publication Date', type: 'date' },
             { name: 'title', label: 'Title', type: 'text', required: true },
             { name: 'authors', label: 'Authors', type: 'text', required: true },
             { name: 'conference', label: 'Venue / Conference & Year', type: 'text', required: true },
-            { name: 'date', label: 'Publication Date (for sorting)', type: 'text', placeholder: 'e.g. August 2025 or 2025-08-01' },
-            { name: 'links.ArXiv', label: 'ArXiv URL', type: 'url' },
+            { name: 'links.ArXiv', label: 'Paper / ArXiv URL', type: 'url' },
             { name: 'links.Code', label: 'Code URL', type: 'url' },
             { name: 'links.PDF', label: 'PDF URL', type: 'url' },
         ],
     },
 };
 
-const getFieldValue = (formData, fieldName) => {
+const getFieldValue = (formData, fieldName, fieldType) => {
     const raw = fieldName.includes('.')
         ? formData[fieldName.split('.')[0]]?.[fieldName.split('.')[1]]
         : formData[fieldName];
-    if (isFirestoreTimestamp(raw)) {
-        return formatDisplayDate(raw);
+    if (fieldType === 'date') {
+        return toDateInputValue(raw);
     }
     return raw || '';
 };
@@ -81,6 +81,12 @@ const sanitizePayload = (data) => {
             }
         });
         cleaned.links = nextLinks;
+    }
+    if (typeof cleaned.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(cleaned.date.trim())) {
+        const dateObj = new Date(`${cleaned.date.trim()}T12:00:00Z`);
+        if (!Number.isNaN(dateObj.getTime())) {
+            cleaned.date = Timestamp.fromDate(dateObj);
+        }
     }
     return cleaned;
 };
@@ -145,7 +151,7 @@ const DocumentForm = ({ formData, fields, onChange, onSave, onCancel, isSaving }
             <div className="space-y-4">
                 {fields.map((field) => {
                     const inputId = `field-${field.name.replace('.', '-')}`;
-                    const value = getFieldValue(formData, field.name);
+                    const value = getFieldValue(formData, field.name, field.type);
 
                     return (
                         <div key={field.name}>
@@ -306,7 +312,15 @@ const AdminPage = () => {
     };
 
     const openModal = (item = null) => {
-        setFormData(item ? { ...item } : {});
+        if (item) {
+            const processed = { ...item };
+            if (processed.date) {
+                processed.date = toDateInputValue(processed.date);
+            }
+            setFormData(processed);
+        } else {
+            setFormData({});
+        }
         setIsModalOpen(true);
     };
 
@@ -339,7 +353,7 @@ const AdminPage = () => {
             return [formatDisplayDate(item.date), item.description].filter(Boolean).join(' — ') || '—';
         }
         if (activeCollection === 'publications') {
-            return [item.conference, item.authors].filter(Boolean).join(' · ') || '—';
+            return [formatDisplayDate(item.date), item.conference, item.authors].filter(Boolean).join(' · ') || '—';
         }
         return item.description || '—';
     };

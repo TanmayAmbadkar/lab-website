@@ -10,6 +10,16 @@ export function useData() {
 
 const COLLECTIONS_TO_FETCH = ['people', 'projects', 'news', 'publications'];
 
+const normalizeDocData = (raw) => {
+    const normalized = { ...raw };
+    for (const key in normalized) {
+        if (normalized[key] && typeof normalized[key].toDate === 'function') {
+            normalized[key] = normalized[key].toDate().toISOString().split('T')[0];
+        }
+    }
+    return normalized;
+};
+
 export function DataProvider({ children }) {
     const [data, setData] = useState({
         people: [],
@@ -41,9 +51,9 @@ export function DataProvider({ children }) {
             const unsubscribe = onSnapshot(
                 q,
                 (querySnapshot) => {
-                    const docs = querySnapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data(),
+                    const docs = querySnapshot.docs.map((docSnap) => ({
+                        id: docSnap.id,
+                        ...normalizeDocData(docSnap.data()),
                     }));
 
                     if (isMounted) {
@@ -66,7 +76,6 @@ export function DataProvider({ children }) {
             unsubscribes.push(unsubscribe);
         });
 
-        // Safety fallback in case Firestore is unreachable or offline
         const fallbackTimer = setTimeout(() => {
             if (isMounted) {
                 setLoading(false);

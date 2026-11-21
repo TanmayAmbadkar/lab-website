@@ -49,21 +49,57 @@ export function toDateObject(value) {
 
 /**
  * Safely formats Firestore Timestamps, Date objects, or date strings into a renderable string.
+ * For ISO YYYY-MM-DD strings and Firestore Timestamps, formats as "Month Year" in UTC to avoid timezone shifts.
  */
 export function formatDisplayDate(value) {
     if (value === null || value === undefined) return '';
-    if (typeof value === 'string') return value;
     if (typeof value === 'number') return String(value);
 
     const dateObj = toDateObject(value);
     if (dateObj) {
         return dateObj.toLocaleDateString('en-US', {
             month: 'long',
-            day: 'numeric',
             year: 'numeric',
+            timeZone: 'UTC',
         });
     }
 
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        const isoMatch = trimmed.match(/^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?$/);
+        if (isoMatch) {
+            const d = new Date(
+                Date.UTC(Number(isoMatch[1]), Number(isoMatch[2]) - 1, isoMatch[3] ? Number(isoMatch[3]) : 1)
+            );
+            return d.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric',
+                timeZone: 'UTC',
+            });
+        }
+        return trimmed;
+    }
+
+    return '';
+}
+
+/**
+ * Converts a Firestore Timestamp, Date, or date string into YYYY-MM-DD for <input type="date">.
+ */
+export function toDateInputValue(value) {
+    if (!value) return '';
+    const dateObj = toDateObject(value);
+    if (dateObj) {
+        return dateObj.toISOString().split('T')[0];
+    }
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+        const ts = parseFlexibleDate(trimmed);
+        if (ts) {
+            return new Date(ts).toISOString().split('T')[0];
+        }
+    }
     return '';
 }
 

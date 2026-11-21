@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '../context/DataContext';
-import { extractYear, getPublicationTimestamp } from '../utils/dates';
+import { extractYear, getPublicationTimestamp, formatDisplayDate } from '../utils/dates';
+import SEO from '../components/SEO';
 
 // --- Reusable Components ---
 import Card from '../components/Card';
@@ -50,6 +51,12 @@ const PublicationsPage = () => {
 
     return (
         <section id="publications" className="py-20 md:py-28 pt-32 md:pt-40">
+            <SEO
+                title="Publications"
+                description="Selected research publications from the Neurosymbolic AI Lab at Penn State, covering topics in machine learning, formal methods, and program synthesis."
+                keywords="Research Papers, Publications, Neurosymbolic AI, Formal Methods, Penn State"
+                url="/publications"
+            />
             <div className="container mx-auto px-6">
                 <SectionTitle
                     as="h1"
@@ -117,32 +124,56 @@ const PublicationsPage = () => {
                                         ? Object.entries(pub.links).filter(([, url]) => typeof url === 'string' && url.trim() !== '')
                                         : [];
 
+                                    const formattedDate = formatDisplayDate(pub.date);
+                                    const publicationSchema = {
+                                        '@context': 'https://schema.org',
+                                        '@type': 'ScholarlyArticle',
+                                        headline: pub.title,
+                                        author: (pub.authors || '')
+                                            .split(',')
+                                            .map((name) => name.trim())
+                                            .filter(Boolean)
+                                            .map((name) => ({ '@type': 'Person', name })),
+                                        datePublished: typeof pub.date === 'string' ? pub.date : formattedDate,
+                                        publication: pub.conference,
+                                    };
+
                                     return (
-                                        <Card key={pub.id} interactive className="!p-6">
-                                            <h2 className="text-lg font-semibold text-white leading-snug mb-2">
-                                                {pub.title}
-                                            </h2>
-                                            <p className="text-gray-300 text-sm mb-3">{pub.authors}</p>
-                                            <div className="flex flex-wrap items-center justify-between gap-3">
-                                                <p className="text-blue-400 text-sm font-medium">{pub.conference}</p>
-                                                {validLinks.length > 0 && (
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {validLinks.map(([name, url]) => (
-                                                            <a
-                                                                key={name}
-                                                                href={url.trim()}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-gray-200 hover:bg-blue-600/20 hover:border-blue-400/40 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                                                            >
-                                                                {name}
-                                                                <span aria-hidden="true" className="text-[10px]">&#8599;</span>
-                                                            </a>
-                                                        ))}
+                                        <React.Fragment key={pub.id}>
+                                            <script type="application/ld+json">
+                                                {JSON.stringify(publicationSchema)}
+                                            </script>
+                                            <Card interactive className="!p-6">
+                                                <h2 className="text-lg font-semibold text-white leading-snug mb-2">
+                                                    {pub.title}
+                                                </h2>
+                                                <p className="text-gray-300 text-sm mb-3">{pub.authors}</p>
+                                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                                                        <p className="text-blue-400 font-medium">{pub.conference}</p>
+                                                        {formattedDate && (
+                                                            <span className="text-gray-500">&middot; {formattedDate}</span>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        </Card>
+                                                    {validLinks.length > 0 && (
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {validLinks.map(([name, url]) => (
+                                                                <a
+                                                                    key={name}
+                                                                    href={url.trim()}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-gray-200 hover:bg-blue-600/20 hover:border-blue-400/40 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                                                                >
+                                                                    {name === 'ArXiv' ? 'Paper' : name}
+                                                                    <span aria-hidden="true" className="text-[10px]">&#8599;</span>
+                                                                </a>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </Card>
+                                        </React.Fragment>
                                     );
                                 })}
                             </div>

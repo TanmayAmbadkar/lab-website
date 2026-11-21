@@ -1,5 +1,6 @@
 import React from 'react';
 import { useData } from '../context/DataContext';
+import SEO from '../components/SEO';
 
 // --- Reusable Components ---
 import Card from '../components/Card';
@@ -44,6 +45,12 @@ const PeoplePage = () => {
 
     return (
         <div className="py-20 md:py-28 pt-32 md:pt-40">
+            <SEO
+                title="People"
+                description="Meet the researchers, students, and collaborators at the Neurosymbolic AI Lab, Penn State."
+                keywords="Lab Members, Researchers, PhD Students, Abhinav Verma, Penn State"
+                url="/people"
+            />
             <div className="container mx-auto px-6">
                 <SectionTitle
                     as="h1"

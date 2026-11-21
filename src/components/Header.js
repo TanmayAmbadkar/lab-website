@@ -13,12 +13,10 @@ const Header = ({ isHeaderVisible, isHeaderGlass }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const location = useLocation();
 
-    // Close mobile menu on route change
     useEffect(() => {
         setIsMenuOpen(false);
     }, [location.pathname]);
 
-    // Lock body scrolling and support Escape key when mobile menu is open
     useEffect(() => {
         if (!isMenuOpen) {
             document.body.style.overflow = '';
